@@ -1,0 +1,36 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"array": "cpp",
+			"deque": "cpp",
+			"list": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"string_view": "cpp",
+			"initializer_list": "cpp",
+			"ranges": "cpp",
+			"exception": "cpp",
+			"memory_resource": "cpp",
+			"iosfwd": "cpp",
+			"new": "cpp",
+			"ostream": "cpp",
+			"streambuf": "cpp",
+			"utility": "cpp",
+			"limits": "cpp",
+			"numeric": "cpp",
+			"random": "cpp",
+			"functional": "cpp",
+			"type_traits": "cpp",
+			"variant": "cpp",
+			"optional": "cpp",
+			"memory": "cpp",
+			"system_error": "cpp"
+		}
+	}
+}

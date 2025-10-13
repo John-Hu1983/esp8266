@@ -1,0 +1,38 @@
+方式二：通过命令行安装 1. 安装Python
+从 Python官网 下载并安装Python（≥3.7），确保勾选"Add Python to PATH"。
+ 2. 安装PlatformIO Core
+打开命令行，执行以下命令：
+
+```
+pip install -U platformio
+``` 3. 安装开发板支持
+```
+platformio platform install <开发板名称>
+```
+例如，安装ESP8266开发板支持：
+
+```
+platformio platform install espressif8266
+``` 4. 创建和管理项目
+- 创建新项目：
+  ```
+  platformio init --board <开发板名称>
+  ```
+- 编译代码：
+  ```
+  platformio run
+  platformio run -j 16
+  ```
+- 上传代码：
+  ```
+  platformio run --target upload
+  platformio run -j 16 --target upload
+  
+  ``` 常见问题解决
+
+if can not execute anything at terminal and show warning like this:
+  [2025-10-10 00:22:15.504] Extension version: 0.99.0
+  [2025-10-10 00:22:15.504] L10N bundle: none
+  [2025-10-10 00:22:15.505] WSL extension is supported only in Microsoft versions of VS Code
+
+to solve this problem, at the right side bar, you can see "WSL" word, delete it directly. 
