@@ -16,7 +16,7 @@ void init_i2c_object(u32 freq)
 }
 
 /*
- * @brief Scan all devices on the I2C bus
+ * @brief Scan all devices on the I2C bus with timeout protection
  * @param None
  * @return None
  */
@@ -29,8 +29,13 @@ void scan_i2c_devices(void)
   Serial.println("Scanning for I2C devices...");
 #endif
 
+  // Add watchdog feeding during scan
   for (address = 1; address < 127; address++)
   {
+    // Feed watchdog to prevent timeout during scan
+    ESP.wdtFeed();
+    yield(); // Allow background tasks
+
     Wire.beginTransmission(address);
     error = Wire.endTransmission();
 
@@ -46,18 +51,36 @@ void scan_i2c_devices(void)
 #endif
       devicesFound++;
     }
-    else if (error == 4)
+    else if (error == 2) // Address sent, NACK received
+    {
+      // This is normal - no device at this address
+      // Don't print anything to reduce noise
+    }
+    else if (error == 3) // Data transfer error
     {
 #if LOG_SHOW_I2C
-      Serial.print("Unknown error at address 0x");
+      Serial.print("Data error at address 0x");
       if (address < 16)
       {
         Serial.print("0");
       }
       Serial.println(address, HEX);
-      Serial.println("Unknown error occurred");
 #endif
     }
+    else if (error == 4) // Other error
+    {
+#if LOG_SHOW_I2C
+      Serial.print("Bus error at address 0x");
+      if (address < 16)
+      {
+        Serial.print("0");
+      }
+      Serial.println(address, HEX);
+#endif
+    }
+
+    // Small delay to prevent bus saturation
+    delay(1);
   }
 
 #if LOG_SHOW_I2C

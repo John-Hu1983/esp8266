@@ -62,7 +62,8 @@
 			"ios": "cpp",
 			"queue": "cpp",
 			"cinttypes": "cpp",
-			"cstdbool": "cpp"
+			"cstdbool": "cpp",
+			"includes.h": "c"
 		}
 	}
 }
