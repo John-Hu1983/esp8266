@@ -51,32 +51,33 @@ void scanWiFiNetworks(void)
 }
 
 // Connect to specified WiFi network
-bool connectToWiFi(void)
-{
-  Serial.print("Connecting to WiFi network: ");
-  Serial.println(ssid);
+bool connectToWiFi(void) {
+    Serial.print("Connecting to WiFi network: ");
+    Serial.println(ssid);
 
-  // Set to Station mode and connect
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+    // Set to Station mode and connect
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
 
-  unsigned long startTime = millis();
+    unsigned long startTime = millis();
 
-  // Wait for connection success or timeout
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    if (millis() - startTime > WIFI_CONNECT_TIMEOUT)
-    {
-      Serial.println("WiFi connection timeout");
-      return false;
+    // Wait for connection success or timeout
+    while (WiFi.status() != WL_CONNECTED) {
+        if (millis() - startTime > WIFI_CONNECT_TIMEOUT) {
+            Serial.println("WiFi connection timeout");
+            return false;
+        }
+
+        Serial.print(".");
+        // 使用yield()替代delay()，让系统有机会执行后台任务和喂狗
+        for(int i = 0; i < 5; i++) {
+            delay(100);
+            yield(); // 喂狗
+        }
     }
 
-    Serial.print(".");
-    delay(500);
-  }
-
-  Serial.println("\nWiFi connected successfully!");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-  return true;
+    Serial.println("\nWiFi connected successfully!");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
+    return true;
 }
