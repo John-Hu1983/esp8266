@@ -13,8 +13,9 @@ void TEST_MainPage(void)
 	GUI_ShowString(20, 16, (u8 *)"1.3\" SH1106", 16, 1);
 	GUI_ShowString(40, 32, (u8 *)"64X128", 16, 1);
 	GUI_ShowString(4, 48, (u8 *)"www.lcdwiki.com", 16, 1);
-	// delay(1500);
-	// delay(1500);
+	OLED_update();
+	delay(1500);
+	ESP.wdtFeed();
 }
 
 /*****************************************************************************
@@ -28,9 +29,13 @@ void Test_Color(void)
 {
 	GUI_Fill(0, 0, WIDTH - 1, HEIGHT - 1, 0);
 	GUI_ShowString(10, 10, (u8 *)"BLACK", 16, 1);
-	// delay(1000);
+	OLED_update();
+	delay(1500);
+	ESP.wdtFeed();
 	GUI_Fill(0, 0, WIDTH - 1, HEIGHT - 1, 1);
-	// delay(1500);
+	OLED_update();
+	delay(1500);
+	ESP.wdtFeed();
 }
 
 /*****************************************************************************
@@ -48,10 +53,14 @@ void Test_Rectangular(void)
 	GUI_Fill(WIDTH / 2, 0, WIDTH - 1, HEIGHT - 1, 1);
 	GUI_DrawRectangle(5, 5, WIDTH / 2 - 1 - 5, HEIGHT - 1 - 5, 1);
 	GUI_DrawRectangle(WIDTH / 2 - 1 + 5, 5, WIDTH - 1 - 5, HEIGHT - 1 - 5, 0);
-	// delay(1000);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 	GUI_FillRectangle(5, 5, WIDTH / 2 - 1 - 5, HEIGHT - 1 - 5, 1);
 	GUI_FillRectangle(WIDTH / 2 - 1 + 5, 5, WIDTH - 1 - 5, HEIGHT - 1 - 5, 0);
-	// delay(1500);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 }
 
 /*****************************************************************************
@@ -69,10 +78,14 @@ void Test_Circle(void)
 	GUI_Fill(WIDTH / 2, 0, WIDTH - 1, HEIGHT - 1, 1);
 	GUI_DrawCircle(WIDTH / 2 / 2 - 1, HEIGHT / 2 - 1, 1, 27);
 	GUI_DrawCircle(WIDTH / 2 + WIDTH / 2 / 2 - 1, HEIGHT / 2 - 1, 0, 27);
-	// delay(1000);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 	GUI_FillCircle(WIDTH / 2 / 2 - 1, HEIGHT / 2 - 1, 1, 27);
 	GUI_FillCircle(WIDTH / 2 + WIDTH / 2 / 2 - 1, HEIGHT / 2 - 1, 0, 27);
-	// delay(1500);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 }
 
 /*****************************************************************************
@@ -90,10 +103,14 @@ void Test_Triangle(void)
 	GUI_Fill(WIDTH / 2, 0, WIDTH - 1, HEIGHT - 1, 1);
 	GUI_DrawTriangel(5, HEIGHT - 1 - 5, WIDTH / 2 / 2 - 1, 5, WIDTH / 2 - 1 - 5, HEIGHT - 1 - 5, 1);
 	GUI_DrawTriangel(WIDTH / 2 - 1 + 5, HEIGHT - 1 - 5, WIDTH / 2 + WIDTH / 2 / 2 - 1, 5, WIDTH - 1 - 5, HEIGHT - 1 - 5, 0);
-	// delay(1000);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 	GUI_FillTriangel(5, HEIGHT - 1 - 5, WIDTH / 2 / 2 - 1, 5, WIDTH / 2 - 1 - 5, HEIGHT - 1 - 5, 1);
 	GUI_FillTriangel(WIDTH / 2 - 1 + 5, HEIGHT - 1 - 5, WIDTH / 2 + WIDTH / 2 / 2 - 1, 5, WIDTH - 1 - 5, HEIGHT - 1 - 5, 0);
-	// delay(1500);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 }
 
 /*****************************************************************************
@@ -107,10 +124,14 @@ void TEST_English(void)
 {
 	GUI_ShowString(0, 5, (u8 *)"6x8:abcdefghijklmnopqrstuvwxyz", 8, 1);
 	GUI_ShowString(0, 25, (u8 *)"8x16:abcdefghijklmnopqrstuvwxyz", 16, 1);
-	// delay(1000);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 	GUI_ShowString(0, 5, (u8 *)"6x8:ABCDEFGHIJKLMNOPQRSTUVWXYZ", 8, 1);
 	GUI_ShowString(0, 25, (u8 *)"8x16:ABCDEFGHIJKLMNOPQRSTUVWXYZ", 16, 1);
-	// delay(1500);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 }
 
 /*****************************************************************************
@@ -125,11 +146,15 @@ void TEST_Number_Character(void)
 	GUI_Fill(0, 0, WIDTH - 1, HEIGHT / 2 - 1, 0);
 	GUI_ShowString(0, 0, (u8 *)"6x8:!\"#$%&'()*+,-./:;<=>?@[]\\^_`~{}|", 8, 1);
 	GUI_ShowNum(30, 16, 1234567890, 10, 8, 1);
-	// delay(1000);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 	OLED_Clear(0);
 	GUI_ShowString(0, 0, (u8 *)"8x16:!\"#$%&'()*+,-./:;<=>?@[]\\^_`~{}|", 16, 1);
 	GUI_ShowNum(40, 32, 1234567890, 10, 16, 1);
-	// delay(1500);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 	OLED_Clear(0);
 }
 
@@ -142,12 +167,18 @@ void TEST_Number_Character(void)
  ******************************************************************************/
 void TEST_BMP(void)
 {
-	GUI_DrawBMP(0, 0, 128, 64, (u8*)BMP2, 1);
-	// delay(1000);
-	GUI_DrawBMP(0, 0, 128, 64, (u8*)BMP3, 1);
-	// delay(1000);
-	GUI_DrawBMP(0, 0, 128, 64, (u8*)BMP4, 1);
-	// delay(1000);
+	GUI_DrawBMP(0, 0, 128, 64, (u8 *)BMP2, 1);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
+	GUI_DrawBMP(0, 0, 128, 64, (u8 *)BMP3, 1);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
+	GUI_DrawBMP(0, 0, 128, 64, (u8 *)BMP4, 1);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 }
 
 /*****************************************************************************
@@ -177,7 +208,9 @@ void TEST_Menu1(void)
 	GUI_Fill(20, 16, 99, 31, 1);
 	GUI_ShowString(20, 16, (u8 *)"A.", 16, 0);
 	GUI_Fill(WIDTH - 1 - 9, 23, WIDTH - 1 - 1, 28, 1);
-	// delay(1500);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 	GUI_FillCircle(10, 24, 0, 3);
 	GUI_DrawCircle(10, 24, 1, 3);
 	GUI_Fill(20, 16, 99, 31, 0);
@@ -187,7 +220,9 @@ void TEST_Menu1(void)
 	GUI_Fill(20, 32, 99, 47, 1);
 	GUI_ShowString(20, 32, (u8 *)"B.", 16, 0);
 	GUI_Fill(WIDTH - 1 - 9, 37, WIDTH - 1 - 1, 42, 1);
-	// delay(1500);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 	GUI_FillCircle(10, 40, 0, 3);
 	GUI_DrawCircle(10, 40, 1, 3);
 	GUI_Fill(20, 32, 99, 47, 0);
@@ -197,7 +232,9 @@ void TEST_Menu1(void)
 	GUI_Fill(20, 48, 99, 63, 1);
 	GUI_ShowString(20, 48, (u8 *)"C.", 16, 0);
 	GUI_Fill(WIDTH - 1 - 9, HEIGHT - 1 - 13, WIDTH - 1 - 1, HEIGHT - 1 - 8, 1);
-	// delay(1500);
+	OLED_update();
+	delay(1000);
+	ESP.wdtFeed();
 }
 
 /*****************************************************************************
@@ -223,7 +260,7 @@ void TEST_Menu2(void)
 	GUI_ShowString(WIDTH / 2 - 1 + 9, 20, (u8 *)"32.5", 16, 1);
 	GUI_ShowString(WIDTH / 2 - 1 + 2, 39, (u8 *)"PM2.5", 8, 1);
 	GUI_ShowString(WIDTH / 2 - 1 + 5, 46, (u8 *)"90ug/m3", 16, 1);
-	GUI_DrawBMP(6, 16, 51, 32, (u8*)BMP5, 1);
+	GUI_DrawBMP(6, 16, 51, 32, (u8 *)BMP5, 1);
 	for (i = 0; i < 15; i++)
 	{
 		GUI_ShowNum(WIDTH / 2 - 1 + 9, 20, rand() % 4, 1, 16, 1);
@@ -231,6 +268,8 @@ void TEST_Menu2(void)
 		GUI_ShowNum(WIDTH / 2 - 1 + 9 + 8 + 16, 20, rand() % 10, 1, 16, 1);
 		GUI_ShowNum(WIDTH / 2 - 1 + 5, 46, rand() % 10, 1, 16, 1);
 		GUI_ShowNum(WIDTH / 2 - 1 + 5 + 8, 46, rand() % 10, 1, 16, 1);
-		// delay(500);
+		OLED_update();
+		delay(500);
+		ESP.wdtFeed();
 	}
 }

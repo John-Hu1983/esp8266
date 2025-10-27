@@ -1,10 +1,13 @@
 #include "../inc/includes.h"
 
-void setup()
+/**
+ * @brief Show startup information
+ *
+ * This function displays the restart reason and exception cause
+ * when the ESP8266 module is restarted.
+ */
+void show_info_startup(void)
 {
-  Serial.begin(115200);
-  delay(1000);
-
   // Detect restart reason
   rst_info *resetInfo = ESP.getResetInfoPtr();
   Serial.println("=== System Restart Detection ===");
@@ -13,6 +16,14 @@ void setup()
   Serial.print("Exception cause: ");
   Serial.println(resetInfo->exccause, HEX);
   Serial.println("================================");
+}
+
+void setup()
+{
+  Serial.begin(115200);
+  delay(1000);
+
+  show_info_startup();
 
   // Disable watchdog initially to prevent issues during initialization
   ESP.wdtDisable();
@@ -26,51 +37,33 @@ void setup()
 
 void loop()
 {
-  // Feed watchdog at start of loop
-  ESP.wdtFeed();
-
-  // TEST_MainPage(); // 主界面显示测试
-  // OLED_Clear(0);
-  // ESP.wdtFeed(); // Feed during operations
-
-  // Test_Color(); // 刷屏测试
-  // OLED_Clear(0);
-  // ESP.wdtFeed();
-
-  // Continue feeding watchdog throughout all operations...
-  Serial.println("rectangle test");
-  Test_Rectangular(); // 矩形绘制测试
   OLED_Clear(0);
-  ESP.wdtFeed();
+  TEST_MainPage();
 
-  Serial.println("circle test");
-  Test_Circle(); // 圆形绘制测试
   OLED_Clear(0);
-  ESP.wdtFeed();
+  Test_Color();
 
-  Serial.println("triangle test");
-  Test_Triangle(); // 三角形绘制测试
   OLED_Clear(0);
-  ESP.wdtFeed();
+  Test_Rectangular();
 
-  // TEST_English(); // 英文显示测试
-  // OLED_Clear(0);
-  // ESP.wdtFeed();
+  OLED_Clear(0);
+  Test_Circle();
 
-  // TEST_Number_Character(); // 数字和符号显示测试
-  // OLED_Clear(0);
-  // ESP.wdtFeed();
+  OLED_Clear(0);
+  Test_Triangle();
 
-  // TEST_BMP(); // BMP单色图片显示测试
-  // OLED_Clear(0);
-  // ESP.wdtFeed();
+  OLED_Clear(0);
+  TEST_English();
 
-  // TEST_Menu1(); // 菜单1显示测试
-  // OLED_Clear(0);
-  // ESP.wdtFeed();
+  OLED_Clear(0);
+  TEST_Number_Character();
 
-  // TEST_Menu2(); // 菜单2显示测试
-  // OLED_Clear(0);
+  OLED_Clear(0);
+  TEST_BMP();
 
-  // delay(100);
+  OLED_Clear(0);
+  TEST_Menu1();
+
+  OLED_Clear(0);
+  TEST_Menu2();
 }

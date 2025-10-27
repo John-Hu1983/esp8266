@@ -1,6 +1,6 @@
 #include "../inc/includes.h"
 
-static u8 OLED_buffer[1024];
+static u8 OLED_buffer[WIDTH * HEIGHT / 8];
 
 /**
  * @brief Initialize OLED device
@@ -39,7 +39,7 @@ void init_oled_device(void)
   OLED_WR_Byte(0x40, OLED_CMD);
   OLED_WR_Byte(0xAF, OLED_CMD); /*display ON*/
 
-  OLED_Clear(0); 
+  OLED_Clear(0);
 }
 
 /**
@@ -72,6 +72,25 @@ bool send_oled_data(u8 data)
   return error == 0;
 }
 
+/*
+ * @brief Send OLED data burst
+ * @param data Pointer to data buffer
+ * @param len Length of data to send
+ * @return True if data burst is sent successfully, false otherwise
+ */
+bool send_oled_dat_burst(const u8 *data, u16 len)
+{
+  byte error = 0;
+  Wire.beginTransmission(SH1106_ID);
+  Wire.write(0x40);
+  while (len--)
+  {
+    Wire.write(*data++);
+  }
+  error = Wire.endTransmission();
+  return error == 0;
+}
+
 /**
  * @brief Write a byte of content to the OLED screen
  * @param dat Content to be written
@@ -99,7 +118,7 @@ void OLED_WR_Byte(unsigned dat, unsigned cmd)
  */
 void OLED_Set_Pos(u8 x, u8 y)
 {
-  OLED_WR_Byte(YLevel + y / PAGE_SIZE, OLED_CMD);
+  OLED_WR_Byte(SH1106_PAGE_ADDR + y / PAGE_SIZE, OLED_CMD);
   OLED_WR_Byte((((x + 2) & 0xf0) >> 4) | 0x10, OLED_CMD);
   OLED_WR_Byte(((x + 2) & 0x0f), OLED_CMD);
 }
@@ -154,18 +173,15 @@ void OLED_Set_Pixel(u8 x, u8 y, u8 color)
  * @param None
  * @retvalue None
  */
-void OLED_Display(void)
+void OLED_update(void)
 {
-  u8 i, n;
+  u8 i;
   for (i = 0; i < PAGE_SIZE; i++)
   {
-    OLED_WR_Byte(YLevel + i, OLED_CMD);
-    OLED_WR_Byte(XLevelL, OLED_CMD);
-    OLED_WR_Byte(XLevelH, OLED_CMD);
-    for (n = 0; n < WIDTH; n++)
-    {
-      OLED_WR_Byte(OLED_buffer[i * WIDTH + n], OLED_DATA);
-    }
+    OLED_WR_Byte(SH1106_PAGE_ADDR + i, OLED_CMD);
+    OLED_WR_Byte(SH1106_COLUMN_L, OLED_CMD);
+    OLED_WR_Byte(SH1106_COLUMN_H, OLED_CMD);
+    send_oled_dat_burst((u8 *)&OLED_buffer[i * WIDTH], WIDTH);
   }
 }
 
@@ -175,7 +191,7 @@ void OLED_Display(void)
  *            1-Display full white
  * @retvalue None
  */
-void OLED_Clear(unsigned dat)
+void OLED_Clear(u8 dat)
 {
   if (dat)
   {
@@ -185,5 +201,4 @@ void OLED_Clear(unsigned dat)
   {
     memset(OLED_buffer, 0, sizeof(OLED_buffer));
   }
-  OLED_Display();
 }

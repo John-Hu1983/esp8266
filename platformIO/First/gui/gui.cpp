@@ -14,7 +14,6 @@
 void GUI_DrawPoint(u8 x, u8 y, u8 color)
 {
 	OLED_Set_Pixel(x, y, color);
-	OLED_Display();
 }
 
 /*******************************************************************
@@ -33,8 +32,8 @@ void GUI_DrawPoint(u8 x, u8 y, u8 color)
 void GUI_Fill(u8 sx, u8 sy, u8 ex, u8 ey, u8 color)
 {
 	u8 i, j;
-	u8 width = ex - sx + 1;	 // �õ����Ŀ���
-	u8 height = ey - sy + 1; // �߶�
+	u8 width = ex - sx + 1;
+	u8 height = ey - sy + 1;
 	for (i = 0; i < height; i++)
 	{
 		for (j = 0; j < width; j++)
@@ -42,7 +41,6 @@ void GUI_Fill(u8 sx, u8 sy, u8 ex, u8 ey, u8 color)
 			OLED_Set_Pixel(sx + j, sy + i, color);
 		}
 	}
-	OLED_Display();
 }
 
 /*******************************************************************
@@ -106,7 +104,6 @@ void GUI_DrawLine(u8 x1, u8 y1, u8 x2, u8 y2, u8 color)
 			uCol += incy;
 		}
 	}
-	OLED_Display();
 }
 
 /*****************************************************************************
@@ -203,7 +200,6 @@ void GUI_DrawCircle(u8 xc, u8 yc, u8 color, u8 r)
 		}
 		x++;
 	}
-	OLED_Display();
 }
 
 /*****************************************************************************
@@ -239,7 +235,6 @@ void GUI_FillCircle(u8 xc, u8 yc, u8 color, u8 r)
 		}
 		x++;
 	}
-	OLED_Display();
 }
 
 /**********************************************************************************
@@ -400,7 +395,6 @@ void GUI_FillTriangel(u8 x0, u8 y0, u8 x1, u8 y1, u8 x2, u8 y2, u8 color)
 		}
 		_draw_h_line(a, b, y, color);
 	}
-	OLED_Display();
 }
 
 /*****************************************************************************
@@ -478,7 +472,6 @@ void GUI_ShowChar(u8 x, u8 y, u8 chr, u8 Char_Size, u8 mode)
 	{
 		return;
 	}
-	OLED_Display();
 }
 
 /*****************************************************************************
@@ -625,5 +618,4 @@ void GUI_DrawBMP(u8 x, u8 y, u8 width, u8 height, u8 BMP[], u8 mode)
 			}
 		}
 	}
-	OLED_Display();
 }
