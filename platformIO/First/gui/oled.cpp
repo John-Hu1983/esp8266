@@ -40,6 +40,7 @@ void init_oled_device(void)
   OLED_WR_Byte(0xAF, OLED_CMD); /*display ON*/
 
   OLED_Clear(0);
+  OLED_update();
 }
 
 /**

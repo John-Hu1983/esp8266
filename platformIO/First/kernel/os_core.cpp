@@ -1,6 +1,6 @@
 #include "../inc/includes.h"
 
-#define OUTPUT_PIN 2
+#define OUTPUT_PIN 13
 
 volatile uint32_t interruptCount = 0;
 ESP8266Timer ITimer1;
@@ -22,6 +22,7 @@ volatile dev_tim_t beacon[sizeof(TASK) / sizeof(TASK[0])];
 IRAM_ATTR void onHwTimer()
 {
   interruptCount++;
+  cb_scan_encode();
 }
 
 /*
@@ -41,7 +42,18 @@ void init_os_core(void)
 
 void os_test(dev_tim_t ms)
 {
+  encoder_t *encoder = read_encoder_feature();
   digitalWrite(OUTPUT_PIN, !digitalRead(OUTPUT_PIN));
+  if (encoder->state.bits.update)
+  {
+    encoder->state.bits.update = 0;
+
+    Serial.print("val: ");
+    Serial.print(encoder->group[0]);
+    Serial.print(encoder->group[1]);
+    Serial.print(encoder->group[2]);
+    Serial.println(encoder->group[3]);
+   }
 }
 
 void os_idle_task(dev_tim_t ms)

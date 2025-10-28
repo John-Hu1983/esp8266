@@ -15,6 +15,7 @@
 #include "../device/dev_leds.h"
 #include "../device/dev_timer.h"
 #include "../device/dev_wifi.h"
+#include "../device/dev_encoder.h"
 
 #include "../gui/oledfont.h"
 #include "../gui/bmp.h"

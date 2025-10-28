@@ -30,12 +30,13 @@ void setup()
 
   // Initialize I2C with recovery if needed
   init_oled_device();
+  init_encode_object();
 
   // Re-enable watchdog after initialization
   ESP.wdtEnable(4000); // 4 second timeout
 
   // Initialize OS core
-  init_os_core(); 
+  init_os_core();
 }
 
 void loop()
