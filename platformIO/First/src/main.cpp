@@ -33,37 +33,14 @@ void setup()
 
   // Re-enable watchdog after initialization
   ESP.wdtEnable(4000); // 4 second timeout
+
+  // Initialize OS core
+  init_os_core(); 
 }
 
 void loop()
 {
-  OLED_Clear(0);
-  TEST_MainPage();
-
-  OLED_Clear(0);
-  Test_Color();
-
-  OLED_Clear(0);
-  Test_Rectangular();
-
-  OLED_Clear(0);
-  Test_Circle();
-
-  OLED_Clear(0);
-  Test_Triangle();
-
-  OLED_Clear(0);
-  TEST_English();
-
-  OLED_Clear(0);
-  TEST_Number_Character();
-
-  OLED_Clear(0);
-  TEST_BMP();
-
-  OLED_Clear(0);
-  TEST_Menu1();
-
-  OLED_Clear(0);
-  TEST_Menu2();
+  // OLED_Clear(0);
+  // TEST_ButtonDemo();
+  os_core_task();
 }

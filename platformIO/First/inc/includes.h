@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 #include <user_interface.h>
+#define USING_TIM_DIV16 true
+#define USING_TIM_DIV256 false
+#include <ESP8266TimerInterrupt.h>
 #include <ESP8266WiFi.h>
 #include <Wire.h>
 
@@ -18,6 +21,7 @@
 #include "../gui/oled.h"
 #include "../gui/gui.h"
 #include "../gui/gui_test.h"
+#include "../gui/gui_btn.h"
 
 #include "../kernel/os_core.h"
 

@@ -63,7 +63,8 @@
 			"queue": "cpp",
 			"cinttypes": "cpp",
 			"cstdbool": "cpp",
-			"includes.h": "c"
+			"includes.h": "c",
+			"esp8266wifi.h": "c"
 		}
 	}
 }
