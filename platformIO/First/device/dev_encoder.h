@@ -1,6 +1,10 @@
 #ifndef _DEV_ENCODER_H_
 #define _DEV_ENCODER_H_
 
+#define GPIO_ENCODER_CLK 13
+#define GPIO_ENCODER_DT 12
+#define GPIO_ENCODER_SW 0
+
 typedef enum
 {
   ENC_TURN_NONE = 0,
@@ -20,9 +24,6 @@ typedef struct
       unsigned step : 2;
     } bits;
   } state;
-
-  u8 previous_val;
-  u8 group[4];
 
 } encoder_t;
 

@@ -3,14 +3,21 @@
 
 #include <Arduino.h>
 #include <user_interface.h>
-#define USING_TIM_DIV16 true
+
+// Timer configuration - must be defined before including ESP8266TimerInterrupt
+#define USING_TIM_DIV1 true
+#define USING_TIM_DIV16 false
 #define USING_TIM_DIV256 false
+
 #include <ESP8266TimerInterrupt.h>
 #include <ESP8266WiFi.h>
 #include <Wire.h>
 
 #include "../inc/usrdef.h"
 
+#include "../apps/main_menu.h"
+
+#include "../device/dev_button.h"
 #include "../device/dev_iic.h"
 #include "../device/dev_leds.h"
 #include "../device/dev_timer.h"

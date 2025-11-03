@@ -1,18 +1,15 @@
 #include "../inc/includes.h"
 
-// #define OUTPUT_PIN 13
-
 volatile uint32_t interruptCount = 0;
 ESP8266Timer ITimer1;
 
-void os_test(dev_tim_t ms);
-
 const user_task_t TASK[] = {
     {0, os_idle_task},
-    {5, os_test},
+    {2, process_main_menu_task},
+
 };
 const u16 TASK_COUNT = sizeof(TASK) / sizeof(TASK[0]);
-volatile dev_tim_t beacon[sizeof(TASK) / sizeof(TASK[0])];
+volatile osvar_t beacon[sizeof(TASK) / sizeof(TASK[0])];
 
 /*
  * @brief: ISR function for hardware timer interrupt
@@ -37,20 +34,12 @@ void init_os_core(void)
   }
 }
 
-void os_test(dev_tim_t ms)
-{
-  static u16 index = 0;
-  encoder_t *encoder = read_encoder_feature();
-  if (encoder->state.bits.update)
-  {
-    encoder->state.bits.update = 0;
-    Serial.print(index++);
-    Serial.print("  dir: ");
-    Serial.println(encoder->state.bits.dir);
-  }
-}
-
-void os_idle_task(dev_tim_t ms)
+/**
+ * @brief: idle task function
+ * @param: ms - time period in milliseconds
+ * @return: void
+ */
+void os_idle_task(osvar_t ms)
 {
 }
 
@@ -65,10 +54,10 @@ void os_core_task(void)
 
   for (u16 i = 0; i < TASK_COUNT; i++)
   {
-    if (is_timer_expired((dev_tim_t *)&beacon[i], TASK[i].period))
+    if (is_timer_expired((osvar_t *)&beacon[i], TASK[i].period))
     {
       TASK[i].entry(TASK[i].period);
-      init_timer_object((dev_tim_t *)&beacon[i]);
+      init_timer_object((osvar_t *)&beacon[i]);
     }
   }
 }

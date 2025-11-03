@@ -239,7 +239,7 @@ void TEST_ButtonDemo(void)
 
   // Try clicking disabled button (no effect)
   // Use button's own properties to calculate click position (center of the button)
-  bool clicked = GUI_CheckButtonPress(&btn3, btn3.x + btn3.width / 2, btn3.y + btn3.height / 2);
+  GUI_CheckButtonPress(&btn3, btn3.x + btn3.width / 2, btn3.y + btn3.height / 2);
   GUI_DrawButton(&btn3);
   OLED_update();
   delay(1000);

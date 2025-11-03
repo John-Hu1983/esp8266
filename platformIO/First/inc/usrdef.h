@@ -12,6 +12,14 @@ typedef signed int      s32;
 typedef float           f32;
 typedef double          f64;
 
+typedef unsigned long   osvar_t;
+
+typedef struct{
+  u8  step;
+  u16 debounce;
+}scan_t;
+
+
 //=========================log show==========================================//
 #define LOG_SHOW_I2C                    enable
 

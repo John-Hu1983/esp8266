@@ -1,9 +1,5 @@
 #include "../inc/includes.h"
 
-#define GPIO_ENCODER_CLK 13
-#define GPIO_ENCODER_DT 12
-#define GPIO_ENCODER_SW 14
-
 encoder_t encoder_dev;
 
 /**
@@ -32,8 +28,8 @@ void IRAM_ATTR encoder_dt_ISR()
  */
 void init_encode_object(void)
 {
-  pinMode(GPIO_ENCODER_CLK, INPUT);
-  pinMode(GPIO_ENCODER_DT, INPUT);
+  pinMode(GPIO_ENCODER_CLK, INPUT_PULLUP);
+  pinMode(GPIO_ENCODER_DT, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(GPIO_ENCODER_CLK), encoder_clk_ISR, FALLING);
   attachInterrupt(digitalPinToInterrupt(GPIO_ENCODER_DT), encoder_dt_ISR, RISING);
   memset((void *)&encoder_dev, 0, sizeof(encoder_dev));

@@ -5,9 +5,9 @@
  * @param: void
  * @return: void
  */
-void init_timer_object(dev_tim_t *tim)
+void init_timer_object(osvar_t *tim)
 {
-  dev_tim_t currentMillis = millis();
+  osvar_t currentMillis = millis();
   *tim = currentMillis;
 }
 
@@ -16,12 +16,12 @@ void init_timer_object(dev_tim_t *tim)
  * @param:
  * @return:
  */
-bool is_timer_expired(dev_tim_t *tim, const dev_tim_t interval)
+bool is_timer_expired(osvar_t *tim, const osvar_t interval)
 {
   bool expired = false;
-  dev_tim_t gap;
+  osvar_t gap;
 
-  dev_tim_t currentMillis = millis();
+  osvar_t currentMillis = millis();
   if (*tim <= currentMillis)
   {
     if (currentMillis - *tim >= interval)

@@ -18,10 +18,17 @@ void show_info_startup(void)
   Serial.println("================================");
 }
 
+/**
+ * @brief System setup function
+ *
+ * This function initializes the serial port, displays startup information,
+ * disables the watchdog timer, initializes I2C with recovery, and sets up
+ * the OLED display and encoder object.
+ */
 void setup()
 {
   Serial.begin(115200);
-  delay(1000);
+  delay(100);
 
   show_info_startup();
 
@@ -32,6 +39,8 @@ void setup()
   init_oled_device();
   init_encode_object();
 
+  init_main_menu();
+
   // Re-enable watchdog after initialization
   ESP.wdtEnable(4000); // 4 second timeout
 
@@ -39,9 +48,12 @@ void setup()
   init_os_core();
 }
 
+/**
+ * @brief System loop function
+ *
+ * This function continuously runs the OS core task.
+ */
 void loop()
 {
-  // OLED_Clear(0);
-  // TEST_ButtonDemo();
   os_core_task();
 }
