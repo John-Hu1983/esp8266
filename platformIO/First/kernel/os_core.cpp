@@ -1,6 +1,6 @@
 #include "../inc/includes.h"
 
-#define OUTPUT_PIN 13
+// #define OUTPUT_PIN 13
 
 volatile uint32_t interruptCount = 0;
 ESP8266Timer ITimer1;
@@ -9,7 +9,7 @@ void os_test(dev_tim_t ms);
 
 const user_task_t TASK[] = {
     {0, os_idle_task},
-    {20, os_test},
+    {5, os_test},
 };
 const u16 TASK_COUNT = sizeof(TASK) / sizeof(TASK[0]);
 volatile dev_tim_t beacon[sizeof(TASK) / sizeof(TASK[0])];
@@ -22,7 +22,6 @@ volatile dev_tim_t beacon[sizeof(TASK) / sizeof(TASK[0])];
 IRAM_ATTR void onHwTimer()
 {
   interruptCount++;
-  cb_scan_encode();
 }
 
 /*
@@ -32,8 +31,6 @@ IRAM_ATTR void onHwTimer()
  */
 void init_os_core(void)
 {
-  pinMode(OUTPUT_PIN, OUTPUT);
-
   if (!ITimer1.attachInterruptInterval(488, onHwTimer))
   {
     Serial.println("Failed to attach HW timer");
@@ -42,18 +39,15 @@ void init_os_core(void)
 
 void os_test(dev_tim_t ms)
 {
+  static u16 index = 0;
   encoder_t *encoder = read_encoder_feature();
-  digitalWrite(OUTPUT_PIN, !digitalRead(OUTPUT_PIN));
   if (encoder->state.bits.update)
   {
     encoder->state.bits.update = 0;
-
-    Serial.print("val: ");
-    Serial.print(encoder->group[0]);
-    Serial.print(encoder->group[1]);
-    Serial.print(encoder->group[2]);
-    Serial.println(encoder->group[3]);
-   }
+    Serial.print(index++);
+    Serial.print("  dir: ");
+    Serial.println(encoder->state.bits.dir);
+  }
 }
 
 void os_idle_task(dev_tim_t ms)
