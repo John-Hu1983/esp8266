@@ -4,14 +4,22 @@
 #include <Arduino.h>
 #include <user_interface.h>
 
-// Timer configuration - must be defined before including ESP8266TimerInterrupt
+// Standard Arduino libraries
+#include <EEPROM.h>
+#include <Wire.h>
+
+// ESP8266 core libraries
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <DNSServer.h>
+
+// Timer configuration for ESP8266TimerInterrupt library
 #define USING_TIM_DIV1 true
 #define USING_TIM_DIV16 false
 #define USING_TIM_DIV256 false
 
+// Include timer interrupt library after configuration
 #include <ESP8266TimerInterrupt.h>
-#include <ESP8266WiFi.h>
-#include <Wire.h>
 
 #include "../inc/usrdef.h"
 
@@ -19,10 +27,13 @@
 
 #include "../device/dev_button.h"
 #include "../device/dev_iic.h"
+
+
 #include "../device/dev_leds.h"
 #include "../device/dev_timer.h"
-#include "../device/dev_wifi.h"
 #include "../device/dev_encoder.h"
+#include "../device/dev_wifi_sta.h"
+#include "../device/dev_wifi_ap.h"
 
 #include "../gui/oledfont.h"
 #include "../gui/bmp.h"

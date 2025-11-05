@@ -1,59 +1,86 @@
 #include "../inc/includes.h"
 
-/**
- * @brief Show startup information
- *
- * This function displays the restart reason and exception cause
- * when the ESP8266 module is restarted.
- */
-void show_info_startup(void)
-{
-  // Detect restart reason
-  rst_info *resetInfo = ESP.getResetInfoPtr();
-  Serial.println("=== System Restart Detection ===");
-  Serial.print("Restart reason: ");
-  Serial.println(ESP.getResetReason());
-  Serial.print("Exception cause: ");
-  Serial.println(resetInfo->exccause, HEX);
-  Serial.println("================================");
-}
-
-/**
- * @brief System setup function
- *
- * This function initializes the serial port, displays startup information,
- * disables the watchdog timer, initializes I2C with recovery, and sets up
- * the OLED display and encoder object.
- */
 void setup()
 {
   Serial.begin(115200);
-  delay(100);
+  Serial.println("ESP8266 WiFi AP Configuration Example");
 
-  show_info_startup();
+   // Try to load saved WiFi credentials
+  String savedSSID, savedPassword;
+  if (loadWiFiCredentials(savedSSID, savedPassword))
+  {
+    Serial.println("Found saved WiFi credentials");
+    Serial.print("SSID: ");
+    Serial.println(savedSSID);
 
-  // Disable watchdog initially to prevent issues during initialization
-  ESP.wdtDisable();
+    // Try to connect to saved WiFi
+    if (connectToWiFiStation(savedSSID, savedPassword))
+    {
+      Serial.println("Successfully connected to saved WiFi!");
+      Serial.print("IP address: ");
+      Serial.println(WiFi.localIP());
 
-  // Initialize I2C with recovery if needed
-  init_oled_device();
-  init_encode_object();
+      // Your main application code here
+      // The device is now connected to WiFi
+      return;
+    }
+    else
+    {
+      Serial.println("Failed to connect to saved WiFi");
+    }
+  }
+  else
+  {
+    Serial.println("No saved WiFi credentials found");
+  }
 
-  init_main_menu();
+  // If no saved credentials or connection failed, start configuration portal
+  Serial.println("Starting WiFi configuration portal...");
+  startWiFiConfigPortal();
 
-  // Re-enable watchdog after initialization
-  ESP.wdtEnable(4000); // 4 second timeout
-
-  // Initialize OS core
-  init_os_core();
+  // After configuration portal, try to connect again
+  if (loadWiFiCredentials(savedSSID, savedPassword))
+  {
+    if (connectToWiFiStation(savedSSID, savedPassword))
+    {
+      Serial.println("Successfully connected to configured WiFi!");
+      Serial.print("IP address: ");
+      Serial.println(WiFi.localIP());
+    }
+    else
+    {
+      Serial.println("Failed to connect even after configuration");
+      // Handle error - maybe restart or go into deep sleep
+    }
+  }
 }
 
-/**
- * @brief System loop function
- *
- * This function continuously runs the OS core task.
- */
 void loop()
 {
-  os_core_task();
+  // Your main application loop
+  // The device should be connected to WiFi at this point
+
+  // Example: Print WiFi status every 10 seconds
+  static unsigned long lastPrint = 0;
+  if (millis() - lastPrint > 10000)
+  {
+    lastPrint = millis();
+    Serial.print("WiFi Status: ");
+    Serial.println(getWiFiStatusString());
+
+    if (WiFi.status() == WL_CONNECTED)
+    {
+      Serial.print("Connected to: ");
+      Serial.println(WiFi.SSID());
+      Serial.print("Signal strength: ");
+      Serial.print(WiFi.RSSI());
+      Serial.println(" dBm");
+    }
+  }
+
+  // Handle web server if in AP mode (for reconfiguration)
+  if (WiFi.getMode() == WIFI_AP)
+  {
+    wifiServer.handleClient();
+  }
 }
