@@ -24,7 +24,10 @@
 #include "../inc/usrdef.h"
 
 #include "../apps/main_menu.h"
+#include "../apps/app_wifi.h"
 
+
+#include "../device/dev_utility.h"
 #include "../device/dev_button.h"
 #include "../device/dev_iic.h"
 
