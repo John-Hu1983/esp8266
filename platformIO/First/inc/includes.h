@@ -19,7 +19,7 @@
 #define USING_TIM_DIV256 false
 
 // Include timer interrupt library after configuration
-#include <ESP8266TimerInterrupt.h>
+// #include <ESP8266TimerInterrupt.h>
 
 #include "../inc/usrdef.h"
 
@@ -46,5 +46,9 @@
 #include "../gui/gui_btn.h"
 
 #include "../kernel/os_core.h"
+
+// 前向声明缺失的UI函数
+void ui_init(void);
+void ui_main_loop(void);
 
 #endif

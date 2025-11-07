@@ -1,4 +1,5 @@
 #include "../inc/includes.h"
+#include <ESP8266TimerInterrupt.h>
 
 volatile uint32_t interruptCount = 0;
 ESP8266Timer ITimer1;

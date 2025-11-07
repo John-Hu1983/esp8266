@@ -8,13 +8,26 @@ DNSServer dnsServer;
 WiFiNetwork foundNetworks[20];
 int networkCount = 0;
 
-// Initialize EEPROM
+/*
+ * @brief Initialize EEPROM for storing WiFi credentials
+ *
+ * This function initializes the EEPROM memory to store the configured
+ * WiFi SSID and password.
+ */
 void initEEPROM()
 {
   EEPROM.begin(EEPROM_SIZE);
 }
 
-// Save WiFi credentials to EEPROM
+/*
+ * @brief Save WiFi credentials to EEPROM
+ *
+ * This function saves the provided WiFi SSID and password to the EEPROM
+ * memory.
+ *
+ * @param ssid The SSID of the WiFi network to be saved.
+ * @param password The password of the WiFi network to be saved.
+ */
 void saveWiFiCredentials(const String &ssid, const String &password)
 {
   initEEPROM();
@@ -41,7 +54,16 @@ void saveWiFiCredentials(const String &ssid, const String &password)
   Serial.println("WiFi credentials saved to EEPROM");
 }
 
-// Load WiFi credentials from EEPROM
+/*
+ * @brief Load WiFi credentials from EEPROM
+ *
+ * This function loads the saved WiFi SSID and password from the EEPROM
+ * memory.
+ *
+ * @param ssid Reference to a String variable where the loaded SSID will be stored.
+ * @param password Reference to a String variable where the loaded password will be stored.
+ * @return True if credentials were loaded successfully, false otherwise.
+ */
 bool loadWiFiCredentials(String &ssid, String &password)
 {
   initEEPROM();
@@ -80,7 +102,12 @@ bool loadWiFiCredentials(String &ssid, String &password)
   return true;
 }
 
-// Reset WiFi credentials
+/*
+ * @brief Reset WiFi credentials stored in EEPROM
+ *
+ * This function resets the stored WiFi SSID and password in the EEPROM
+ * memory to their default values.
+ */
 void resetWiFiCredentials()
 {
   initEEPROM();
@@ -92,7 +119,15 @@ void resetWiFiCredentials()
   Serial.println("WiFi credentials reset");
 }
 
-// Blink status LED
+/*
+ * @brief Blink status LED
+ *
+ * This function blinks the status LED (NodeMCU built-in LED) a specified
+ * number of times with a given interval.
+ *
+ * @param times The number of times the LED should blink.
+ * @param interval The interval (in milliseconds) between each blink.
+ */
 void blinkStatusLED(int times, int interval)
 {
   if (STATUS_LED_PIN < 0)
@@ -108,7 +143,15 @@ void blinkStatusLED(int times, int interval)
   }
 }
 
-// Get encryption type as string
+/*
+ * @brief Get encryption type as string
+ *
+ * This function returns a string representation of the encryption type
+ * based on the provided encryption type constant.
+ *
+ * @param encryption The encryption type constant to be converted.
+ * @return The string representation of the encryption type.
+ */
 String getEncryptionType(uint8_t encryption)
 {
   switch (encryption)
@@ -128,7 +171,15 @@ String getEncryptionType(uint8_t encryption)
   }
 }
 
-// Get signal bars based on RSSI
+/*
+ * @brief Get signal bars based on RSSI value
+ *
+ * This function returns a string representation of signal bars based on the
+ * provided RSSI value.
+ *
+ * @param rssi The RSSI value to be converted.
+ * @return The string representation of signal bars.
+ */
 String getSignalBars(int32_t rssi)
 {
   if (rssi > -50)
@@ -141,7 +192,12 @@ String getSignalBars(int32_t rssi)
     return "📶";
 }
 
-// Scan for available WiFi networks
+/*
+ * @brief Scan for available WiFi networks
+ *
+ * This function scans for available WiFi networks and stores the information
+ * in the foundNetworks array.
+ */
 void scanAvailableNetworks()
 {
   Serial.println("Scanning for WiFi networks...");
@@ -192,7 +248,15 @@ void scanAvailableNetworks()
   }
 }
 
-// Get WiFi status as string
+/*
+ * @brief Get WiFi status as string
+ *
+ * This function returns a string representation of the WiFi status
+ * based on the provided WiFi status constant.
+ *
+ * @param wifiStatus The WiFi status constant to be converted.
+ * @return The string representation of the WiFi status.
+ */
 String getWiFiStatusString()
 {
   switch (WiFi.status())
@@ -218,7 +282,13 @@ String getWiFiStatusString()
   }
 }
 
-// Test WiFi connection
+/*
+ * @brief Test WiFi connection
+ *
+ * This function tests the WiFi connection by pinging Google DNS.
+ *
+ * @return True if the connection test is successful, false otherwise.
+ */
 bool testWiFiConnection()
 {
   if (WiFi.status() != WL_CONNECTED)
@@ -239,7 +309,16 @@ bool testWiFiConnection()
   return result;
 }
 
-// Connect to WiFi station
+/*
+ * @brief Connect to WiFi station
+ *
+ * This function connects to a specified WiFi station using the provided SSID
+ * and password.
+ *
+ * @param ssid The SSID of the WiFi station to connect to.
+ * @param password The password of the WiFi station to connect to.
+ * @return True if the connection is successful, false otherwise.
+ */
 bool connectToWiFiStation(const String &ssid, const String &password)
 {
   Serial.print("Connecting to WiFi: ");
@@ -268,7 +347,12 @@ bool connectToWiFiStation(const String &ssid, const String &password)
   return true;
 }
 
-// Handle root page
+/*
+ * @brief Handle root page request
+ *
+ * This function handles the root page request by serving the HTML content
+ * for the ESP8266 WiFi configuration page.
+ */
 void handleRootPage()
 {
   Serial.println("Serving root page");
@@ -365,7 +449,12 @@ void handleRootPage()
   wifiServer.send(200, "text/html", html);
 }
 
-// Handle network scan
+/*
+ * @brief Handle network scan request
+ *
+ * This function handles the network scan request by scanning for available
+ * WiFi networks and returning the results in HTML format.
+ */
 void handleScanNetworks()
 {
   Serial.println("Handling network scan request");
@@ -392,7 +481,12 @@ void handleScanNetworks()
   wifiServer.send(200, "text/html", html);
 }
 
-// Handle save credentials
+/*
+ * @brief Handle save credentials request
+ *
+ * This function handles the save credentials request by saving the provided
+ * SSID and password to the ESP8266's non-volatile storage.
+ */
 void handleSaveCredentials()
 {
   Serial.println("Handling save credentials request");
@@ -448,7 +542,12 @@ void handleSaveCredentials()
   ESP.restart();
 }
 
-// Handle 404
+/*
+ * @brief Handle 404 Not Found page request
+ *
+ * This function handles the 404 Not Found page request by returning an error
+ * message with the requested URI, method, arguments, and argument values.
+ */
 void handleNotFoundPage()
 {
   String message = "File Not Found\n\n";
@@ -468,7 +567,12 @@ void handleNotFoundPage()
   wifiServer.send(404, "text/plain", message);
 }
 
-// Start web server
+/*
+ * @brief Start web server
+ *
+ * This function starts the web server on port 80 and sets up the necessary
+ * routes to handle root page, network scan, save credentials, and 404 errors.
+ */
 void startWebServer()
 {
   wifiServer.on("/", handleRootPage);
@@ -479,14 +583,23 @@ void startWebServer()
   Serial.println("Web server started on port 80");
 }
 
-// Stop web server
+/*
+ * @brief Stop web server
+ *
+ * This function stops the web server and closes the connection to clients.
+ */
 void stopWebServer()
 {
   wifiServer.stop();
   Serial.println("Web server stopped");
 }
 
-// Start DNS server
+/*
+ * @brief Start DNS server
+ *
+ * This function starts the DNS server on port 53 and sets up the necessary
+ * settings to resolve requests for the configured domain.
+ */
 void startDNSServer()
 {
   dnsServer.setTTL(300);
@@ -496,13 +609,24 @@ void startDNSServer()
 }
 
 // Stop DNS server
+/*
+ * @brief Stop DNS server
+ *
+ * This function stops the DNS server and closes the connection to clients.
+ */
 void stopDNSServer()
 {
   dnsServer.stop();
   Serial.println("DNS server stopped");
 }
 
-// Start WiFi configuration portal
+/*
+ * @brief Start WiFi configuration portal
+ *
+ * This function starts the WiFi configuration portal by setting up the
+ * Access Point with the configured SSID and password. It also starts the
+ * DNS server and web server to handle client requests.
+ */
 void startWiFiConfigPortal()
 {
   Serial.println("Starting WiFi configuration portal...");
@@ -571,7 +695,12 @@ void startWiFiConfigPortal()
   }
 }
 
-// Stop WiFi configuration portal
+/*
+ * @brief Stop WiFi configuration portal
+ *
+ * This function stops the WiFi configuration portal by stopping the web server,
+ * DNS server, and disconnecting the Access Point.
+ */
 void stopWiFiConfigPortal()
 {
   Serial.println("Stopping WiFi configuration portal");
