@@ -26,17 +26,14 @@
 #include "../apps/main_menu.h"
 #include "../apps/app_wifi.h"
 
-
 #include "../device/dev_utility.h"
 #include "../device/dev_button.h"
 #include "../device/dev_iic.h"
 
-
 #include "../device/dev_leds.h"
 #include "../device/dev_timer.h"
 #include "../device/dev_encoder.h"
-#include "../device/dev_wifi_sta.h"
-#include "../device/dev_wifi_ap.h"
+#include "../device/dev_wifi.h"
 
 #include "../gui/oledfont.h"
 #include "../gui/bmp.h"
@@ -46,9 +43,5 @@
 #include "../gui/gui_btn.h"
 
 #include "../kernel/os_core.h"
-
-// 前向声明缺失的UI函数
-void ui_init(void);
-void ui_main_loop(void);
 
 #endif

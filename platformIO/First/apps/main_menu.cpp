@@ -62,7 +62,7 @@ void process_main_menu_task(osvar_t ms)
   if (btn_val == BTN_CLICK)
   {
     Serial.println("Encoder click!");
-    scanWiFiNetworks();
+    scanAvailableNetworks();
   }
   else if (btn_val == BTN_HOLD)
   {

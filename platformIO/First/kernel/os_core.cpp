@@ -6,8 +6,7 @@ ESP8266Timer ITimer1;
 
 const user_task_t TASK[] = {
     {0, os_idle_task},
-    {2, process_main_menu_task},
-
+    {50, process_main_menu_task}, // Changed from 2ms to 50ms to reduce CPU load
 };
 const u16 TASK_COUNT = sizeof(TASK) / sizeof(TASK[0]);
 volatile osvar_t beacon[sizeof(TASK) / sizeof(TASK[0])];
@@ -51,14 +50,13 @@ void os_idle_task(osvar_t ms)
  */
 void os_core_task(void)
 {
-  ESP.wdtFeed();
-
   for (u16 i = 0; i < TASK_COUNT; i++)
   {
+    ESP.wdtFeed();
     if (is_timer_expired((osvar_t *)&beacon[i], TASK[i].period))
     {
       TASK[i].entry(TASK[i].period);
-      init_timer_object((osvar_t *)&beacon[i]);
+      reset_timer_obj((osvar_t *)&beacon[i]);
     }
   }
 }

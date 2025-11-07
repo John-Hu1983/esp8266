@@ -5,7 +5,7 @@
  * @param: void
  * @return: void
  */
-void init_timer_object(osvar_t *tim)
+void reset_timer_obj(osvar_t *tim)
 {
   osvar_t currentMillis = millis();
   *tim = currentMillis;
