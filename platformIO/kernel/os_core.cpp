@@ -6,7 +6,7 @@ ESP8266Timer ITimer1;
 
 const user_task_t TASK[] = {
     {0, os_idle_task},
-    {50, process_main_menu_task}, // Changed from 2ms to 50ms to reduce CPU load
+    {5, process_main_menu_task}, // Changed from 2ms to 50ms to reduce CPU load
 };
 const u16 TASK_COUNT = sizeof(TASK) / sizeof(TASK[0]);
 volatile osvar_t beacon[sizeof(TASK) / sizeof(TASK[0])];

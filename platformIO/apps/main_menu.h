@@ -11,8 +11,38 @@
 
 typedef struct
 {
-  s8 cursor;
+  u8 *png;
+  u8 *title;
+} menu_iocon_t;
+
+typedef struct
+{
+  u8 cursor;
+  union
+  {
+    u8 word;
+    struct
+    {
+      unsigned update : 1; // 0~1
+      unsigned dir : 3;    // 0~7
+    } bits;
+  } state;
+
+  u8 step;
+  u16 period;
+  u16 x;
+  u16 y;
+
 } MainMenu_Ctr;
+
+typedef enum
+{
+  Slip_Dir_Null = 0,
+  Slip_Dir_Left,
+  Slip_Dir_Right,
+  Slip_Dir_Up,
+  Slip_Dir_Down,
+} Slip_Dir_t;
 
 void init_main_menu(void);
 void draw_main_menu(void);

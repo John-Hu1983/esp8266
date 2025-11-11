@@ -23,6 +23,9 @@
 
 #include "../inc/usrdef.h"
 
+#include "../png/png_heads.h"
+
+
 #include "../apps/main_menu.h"
 #include "../apps/app_wifi.h"
 
@@ -34,6 +37,7 @@
 #include "../device/dev_timer.h"
 #include "../device/dev_encoder.h"
 #include "../device/dev_wifi.h"
+
 
 #include "../gui/oledfont.h"
 #include "../gui/bmp.h"

@@ -14,7 +14,12 @@ void GUI_SetBackgroundColor(u8 color)
   g_GUIBackgroundColor = (color == 0) ? 0 : 1; // Ensure only 0 or 1 values
 }
 
-// Modify background color variable used in GUI_DrawButton function
+/**
+ * @name       :void GUI_DrawButton(Button *btn)
+ * @function   :Draw button (supports both text and image buttons)
+ * @parameters :btn:Button pointer
+ * @retvalue   :None
+ */
 void GUI_DrawButton(Button *btn)
 {
   if (!btn || !btn->visible)
@@ -29,14 +34,14 @@ void GUI_DrawButton(Button *btn)
 
   if (btn->state == BUTTON_STATE_PRESSED)
   {
-    // Pressed state: Button background color becomes GUI background color, text color becomes GUI foreground color
+    // Pressed state: Button background color becomes GUI background color, text/image color becomes GUI foreground color
     buttonBackgroundColor = guiBackgroundColor;
     buttonTextColor = guiForegroundColor;
     buttonBorderColor = guiForegroundColor;
   }
   else if (btn->state == BUTTON_STATE_DISABLED)
   {
-    // Disabled state: Light gray background (implemented with dots), gray text
+    // Disabled state: Light gray background (implemented with dots)
     u8 i, j;
     for (i = btn->y; i < btn->y + btn->height; i++)
     {
@@ -54,66 +59,80 @@ void GUI_DrawButton(Button *btn)
     }
     GUI_DrawRectangle(btn->x, btn->y, btn->x + btn->width - 1, btn->y + btn->height - 1, guiBackgroundColor);
 
-    // Calculate text center position
-    u8 textWidth = 0;
-    u8 textHeight = btn->textSize;
-    u8 *text = btn->text;
-    while (*text)
+    // Handle text or image drawing for disabled state
+    if (btn->type == BUTTON_TYPE_TEXT && btn->text != NULL)
     {
-      textWidth += (btn->textSize == 16) ? 8 : 6;
-      text++;
-    }
-
-    u8 textX = btn->x + (btn->width - textWidth) / 2;
-    u8 textY = btn->y + (btn->height - textHeight) / 2;
-
-    // Disabled state: Gray text (implemented with alternating pixels)
-    text = btn->text;
-    u8 charIndex = 0;
-    while (*text)
-    {
-      u8 currentChar = *text;
-      for (u8 i = 0; i < textHeight; i++)
+      // Calculate text center position
+      u8 textWidth = 0;
+      u8 textHeight = btn->textSize;
+      u8 *text = btn->text;
+      while (*text)
       {
-        u8 rowData;
-        if (textHeight == 16)
-        {
-          rowData = F8X16[(currentChar - ' ') * 16 + i];
-        }
-        else
-        {
-          rowData = F6x8[currentChar - ' '][i];
-        }
+        textWidth += (btn->textSize == 16) ? 8 : 6;
+        text++;
+      }
 
-        for (u8 j = 0; j < 8; j++)
+      u8 textX = btn->x + (btn->width - textWidth) / 2;
+      u8 textY = btn->y + (btn->height - textHeight) / 2;
+
+      // Disabled state: Gray text (implemented with alternating pixels)
+      text = btn->text;
+      u8 charIndex = 0;
+      while (*text)
+      {
+        u8 currentChar = *text;
+        for (u8 i = 0; i < textHeight; i++)
         {
-          if (rowData & (0x80 >> j))
+          u8 rowData;
+          if (textHeight == 16)
           {
-            u8 dotX = textX + charIndex * ((textHeight == 16) ? 8 : 6) + j;
-            u8 dotY = textY + i;
-            if (dotX < btn->x + btn->width && dotY < btn->y + btn->height)
+            rowData = F8X16[(currentChar - ' ') * 16 + i];
+          }
+          else
+          {
+            rowData = F6x8[currentChar - ' '][i];
+          }
+
+          for (u8 j = 0; j < 8; j++)
+          {
+            if (rowData & (0x80 >> j))
             {
-              // Use alternating pixels to create gray effect
-              if ((dotX + dotY) % 4 == 0)
+              u8 dotX = textX + charIndex * ((textHeight == 16) ? 8 : 6) + j;
+              u8 dotY = textY + i;
+              if (dotX < btn->x + btn->width && dotY < btn->y + btn->height)
               {
-                OLED_Set_Pixel(dotX, dotY, guiBackgroundColor);
-              }
-              else
-              {
-                OLED_Set_Pixel(dotX, dotY, guiForegroundColor);
+                // Use alternating pixels to create gray effect
+                if ((dotX + dotY) % 4 == 0)
+                {
+                  OLED_Set_Pixel(dotX, dotY, guiBackgroundColor);
+                }
+                else
+                {
+                  OLED_Set_Pixel(dotX, dotY, guiForegroundColor);
+                }
               }
             }
           }
         }
+        charIndex++;
+        text++;
       }
-      charIndex++;
-      text++;
     }
-    return; // Already processed disabled state text, return directly
+    else if (btn->type == BUTTON_TYPE_IMAGE && btn->imageData != NULL)
+    {
+      // For disabled image buttons, draw the image with gray effect
+      // Draw image at center of button
+      u8 imageX = btn->x + (btn->width - btn->width) / 2;
+      u8 imageY = btn->y + (btn->height - btn->height) / 2;
+
+      // Draw image with inversion for disabled effect
+      GUI_DrawBMP(imageX, imageY, btn->width, btn->height, btn->imageData, !guiBackgroundColor);
+    }
+    return; // Already processed disabled state, return directly
   }
   else
   {
-    // Normal state: Button background color is opposite to GUI background color, text color is the same as GUI background color
+    // Normal state: Button background color is opposite to GUI background color, text/image color is the same as GUI background color
     buttonBackgroundColor = guiForegroundColor;
     buttonTextColor = guiBackgroundColor;
     buttonBorderColor = guiBackgroundColor;
@@ -125,21 +144,35 @@ void GUI_DrawButton(Button *btn)
   // Draw button border
   GUI_DrawRectangle(btn->x, btn->y, btn->x + btn->width - 1, btn->y + btn->height - 1, buttonBorderColor);
 
-  // Calculate text center position
-  u8 textWidth = 0;
-  u8 textHeight = btn->textSize;
-  u8 *text = btn->text;
-  while (*text)
+  // Draw button content based on type
+  if (btn->type == BUTTON_TYPE_TEXT && btn->text != NULL)
   {
-    textWidth += (btn->textSize == 16) ? 8 : 6; // Calculate total text width
-    text++;
+    // Calculate text center position
+    u8 textWidth = 0;
+    u8 textHeight = btn->textSize;
+    u8 *text = btn->text;
+    while (*text)
+    {
+      textWidth += (btn->textSize == 16) ? 8 : 6; // Calculate total text width
+      text++;
+    }
+
+    u8 textX = btn->x + (btn->width - textWidth) / 2;
+    u8 textY = btn->y + (btn->height - textHeight) / 2;
+
+    // Draw button text - Text color is the same as GUI background color
+    GUI_ShowString(textX, textY, btn->text, btn->textSize, buttonTextColor);
   }
+  else if (btn->type == BUTTON_TYPE_IMAGE && btn->imageData != NULL)
+  {
+    // Draw image at center of button
+    u8 imageX = btn->x + (btn->width - btn->width) / 2;
+    u8 imageY = btn->y + (btn->height - btn->height) / 2;
 
-  u8 textX = btn->x + (btn->width - textWidth) / 2;
-  u8 textY = btn->y + (btn->height - textHeight) / 2;
-
-  // Draw button text - Text color is the same as GUI background color
-  GUI_ShowString(textX, textY, btn->text, btn->textSize, buttonTextColor);
+    // For pressed state, invert the image colors
+    u8 imageMode = (btn->state == BUTTON_STATE_PRESSED) ? !guiBackgroundColor : guiBackgroundColor;
+    GUI_DrawBMP(imageX, imageY, btn->width, btn->height, btn->imageData, imageMode);
+  }
 }
 
 /**
@@ -189,10 +222,10 @@ void GUI_ResetButtonState(Button *btn)
  */
 void TEST_ButtonDemo(void)
 {
-  // Create three buttons
-  Button btn1 = {20, 35, 20, 20, (u8 *)"1", 16, BUTTON_STATE_NORMAL, true};
-  Button btn2 = {50, 35, 20, 20, (u8 *)"2", 16, BUTTON_STATE_NORMAL, true};
-  Button btn3 = {80, 35, 20, 20, (u8 *)"3", 16, BUTTON_STATE_DISABLED, true};
+  // Create three buttons (backward compatible)
+  Button btn1 = {20, 35, 20, 20, (u8 *)"1", 16, NULL, BUTTON_TYPE_TEXT, BUTTON_STATE_NORMAL, true};
+  Button btn2 = {50, 35, 20, 20, (u8 *)"2", 16, NULL, BUTTON_TYPE_TEXT, BUTTON_STATE_NORMAL, true};
+  Button btn3 = {80, 35, 20, 20, (u8 *)"3", 16, NULL, BUTTON_TYPE_TEXT, BUTTON_STATE_DISABLED, true};
 
   // Display title
   GUI_ShowString(30, 0, (u8 *)"BUTTON DEMO", 16, 1);
@@ -272,3 +305,93 @@ void TEST_ButtonDemo(void)
   delay(1000);
   ESP.wdtFeed();
 }
+
+/**
+ * @name       :void TEST_ImageButtonDemo(void)
+ * @function   :Image button demonstration
+ * @parameters :None
+ * @retvalue   :None
+ */
+void TEST_ImageButtonDemo(void)
+{
+  // Create image buttons using existing BMP data from bmp.h
+  // Note: Make sure you have BMP data defined in bmp.cpp or included properly
+
+  Button imgBtn1 = {10, 30, 16, 16, NULL, 0, (u8 *)BMP2, BUTTON_TYPE_IMAGE, BUTTON_STATE_NORMAL, true};
+  Button imgBtn2 = {40, 30, 16, 16, NULL, 0, (u8 *)BMP3, BUTTON_TYPE_IMAGE, BUTTON_STATE_NORMAL, true};
+  Button imgBtn3 = {70, 30, 16, 16, NULL, 0, (u8 *)BMP4, BUTTON_TYPE_IMAGE, BUTTON_STATE_DISABLED, true};
+
+  // Create a text button for comparison
+  Button textBtn = {100, 30, 25, 16, (u8 *)"TXT", 8, NULL, BUTTON_TYPE_TEXT, BUTTON_STATE_NORMAL, true};
+
+  // Display title
+  GUI_ShowString(20, 0, (u8 *)"IMAGE BUTTON DEMO", 16, 1);
+  GUI_DrawLine(0, 15, WIDTH - 1, 15, 1);
+
+  // Draw all buttons
+  GUI_DrawButton(&imgBtn1);
+  GUI_DrawButton(&imgBtn2);
+  GUI_DrawButton(&imgBtn3);
+  GUI_DrawButton(&textBtn);
+
+  OLED_update();
+  delay(2000);
+  ESP.wdtFeed();
+
+  // Simulate clicking image button 1
+  GUI_CheckButtonPress(&imgBtn1, imgBtn1.x + imgBtn1.width / 2, imgBtn1.y + imgBtn1.height / 2);
+  GUI_DrawButton(&imgBtn1);
+  OLED_update();
+  delay(1000);
+  ESP.wdtFeed();
+
+  // Release image button 1
+  GUI_ResetButtonState(&imgBtn1);
+  GUI_DrawButton(&imgBtn1);
+  OLED_update();
+  delay(500);
+  ESP.wdtFeed();
+
+  // Simulate clicking image button 2
+  GUI_CheckButtonPress(&imgBtn2, imgBtn2.x + imgBtn2.width / 2, imgBtn2.y + imgBtn2.height / 2);
+  GUI_DrawButton(&imgBtn2);
+  OLED_update();
+  delay(1000);
+  ESP.wdtFeed();
+
+  // Release image button 2
+  GUI_ResetButtonState(&imgBtn2);
+  GUI_DrawButton(&imgBtn2);
+  OLED_update();
+  delay(500);
+  ESP.wdtFeed();
+
+  // Try clicking disabled image button (no effect)
+  GUI_CheckButtonPress(&imgBtn3, imgBtn3.x + imgBtn3.width / 2, imgBtn3.y + imgBtn3.height / 2);
+  GUI_DrawButton(&imgBtn3);
+  OLED_update();
+  delay(1000);
+  ESP.wdtFeed();
+}
+
+/**
+ * @name       :void gui_draw_btn_pic(uint8_t x, uint8_t y, const uint8_t *bmp)
+ * @function   :Draw a 48x48 BMP image on OLED
+ * @parameters :x - X coordinate of top-left corner
+ *              y - Y coordinate of top-left corner
+ *              bmp - Pointer to BMP image data
+ * @retvalue   :None
+ */
+void gui_draw_btn_pic(uint8_t x, uint8_t y, const uint8_t *bmp)
+{
+  u16 sx, sy;
+  for (sy = 0; sy < 48; sy++)
+  {
+    for (sx = 0; sx < 48; sx++)
+    {
+      OLED_Set_Pixel(x + sx, y + sy, (pgm_read_byte(&bmp[sy * 48 + sx]) > 0x2f) ? 1 : 0);
+    }
+  }
+}
+
+
