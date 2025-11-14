@@ -412,6 +412,7 @@ void GUI_FillTriangel(u8 x0, u8 y0, u8 x1, u8 y1, u8 x2, u8 y2, u8 color)
 void GUI_ShowChar(u8 x, u8 y, u8 chr, u8 Char_Size, u8 mode)
 {
 	unsigned char c = 0, i = 0, tmp, j = 0;
+	bool lev;
 	c = chr - ' '; // �õ�ƫ�ƺ��ֵ
 	if (x > WIDTH - 1)
 	{
@@ -422,24 +423,11 @@ void GUI_ShowChar(u8 x, u8 y, u8 chr, u8 Char_Size, u8 mode)
 	{
 		for (i = 0; i < 16; i++)
 		{
-			if (mode)
-			{
-				tmp = F8X16[c * 16 + i];
-			}
-			else
-			{
-				tmp = ~(F8X16[c * 16 + i]);
-			}
+			tmp = (mode) ? pgm_read_byte(&Font8X16[c * 16 + i]) : ~pgm_read_byte(&Font8X16[c * 16 + i]);
 			for (j = 0; j < 8; j++)
 			{
-				if (tmp & (0x80 >> j))
-				{
-					OLED_Set_Pixel(x + j, y + i, 1);
-				}
-				else
-				{
-					OLED_Set_Pixel(x + j, y + i, 0);
-				}
+				lev = (tmp & (0x80 >> j)) ? 1 : 0;
+				OLED_Set_Pixel(x + j, y + i, lev);
 			}
 		}
 	}
@@ -447,24 +435,11 @@ void GUI_ShowChar(u8 x, u8 y, u8 chr, u8 Char_Size, u8 mode)
 	{
 		for (i = 0; i < 8; i++)
 		{
-			if (mode)
-			{
-				tmp = F6x8[c][i];
-			}
-			else
-			{
-				tmp = ~(F6x8[c][i]);
-			}
+			tmp = (mode) ? pgm_read_byte(&Font6x8[c][i]) : ~pgm_read_byte(&Font6x8[c][i]);
 			for (j = 0; j < 8; j++)
 			{
-				if (tmp & (0x80 >> j))
-				{
-					OLED_Set_Pixel(x + j, y + i, 1);
-				}
-				else
-				{
-					OLED_Set_Pixel(x + j, y + i, 0);
-				}
+				lev = (tmp & (0x80 >> j)) ? 1 : 0;
+				OLED_Set_Pixel(x + j, y + i, lev);
 			}
 		}
 	}
@@ -479,7 +454,7 @@ void GUI_ShowChar(u8 x, u8 y, u8 chr, u8 Char_Size, u8 mode)
  * @date       :2018-08-27
  * @function   :Display English string
  * @parameters :x:the bebinning x coordinate of the English string
-				y:the bebinning y coordinate of the English string
+								y:the bebinning y coordinate of the English string
 								chr:the start address of the English string
 								Char_Size:the size of display character
 								mode:0-white background and black character
@@ -512,6 +487,45 @@ void GUI_ShowString(u8 x, u8 y, u8 *chr, u8 Char_Size, u8 mode)
 		}
 		j++;
 	}
+}
+
+/*****************************************************************************
+ * @name       :void Gui_Show_Str_At_Center(u8 xs, u8 ys, u8 xe, u8 ye, u8 *chr, u8 Char_Size, u8 mode)
+ * @date       :2018-08-27
+ * @function   :Display English string at center
+ * @parameters :xs:the bebinning x coordinate of the English string
+								ys:the bebinning y coordinate of the English string
+								xe:the end x coordinate of the English string
+								ye:the end y coordinate of the English string
+								chr:the start address of the English string
+								Char_Size:the size of display character
+								mode:0-white background and black character
+									 1-black background and white character
+ * @retvalue   :None
+******************************************************************************/
+void Gui_Show_Str_At_Center(u8 xs, u8 ys, u8 xe, u8 ye, u8 *chr, u8 Char_Size, u8 mode)
+{
+	u16 len = 0, csize;
+	u8 x, y;
+	if (Char_Size == 16)
+	{
+		csize = Char_Size / 2;
+	}
+	else if (Char_Size == 8)
+	{
+		csize = Char_Size / 2 + 2;
+	}
+	else
+	{
+		return;
+	}
+	while (chr[len] != '\0')
+	{
+		len++;
+	}
+	x = xs + (xe - xs - len * csize) / 2;
+	y = ys + (ye - ys - Char_Size) / 2;
+	GUI_ShowString(x, y, chr, Char_Size, mode);
 }
 
 /*****************************************************************************

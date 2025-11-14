@@ -25,8 +25,7 @@
 #define EEPROM_PASSWORD_ADDR 34
 #define MAGIC_NUMBER 0x1234
 
-// LED Pin (NodeMCU built-in LED)
-#define STATUS_LED_PIN 2
+
 
 // WiFi Network Structure
 struct WiFiNetwork {
@@ -47,7 +46,6 @@ void initEEPROM();
 void saveWiFiCredentials(const String& ssid, const String& password);
 bool loadWiFiCredentials(String& ssid, String& password);
 void resetWiFiCredentials();
-void blinkStatusLED(int times, int interval);
 String getEncryptionType(uint8_t encryption);
 String getSignalBars(int32_t rssi);
 void scanAvailableNetworks();

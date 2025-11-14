@@ -28,7 +28,7 @@ IRAM_ATTR void onHwTimer()
  */
 void init_os_core(void)
 {
-  if (!ITimer1.attachInterruptInterval(488, onHwTimer))
+  if (!ITimer1.attachInterruptInterval(100, onHwTimer))
   {
     Serial.println("Failed to attach HW timer");
   }
@@ -41,6 +41,11 @@ void init_os_core(void)
  */
 void os_idle_task(osvar_t ms)
 {
+  if (interruptCount >= 10)
+  {
+    cb_encoder_restricted_zoon();
+    interruptCount = 0;
+  }
 }
 
 /*

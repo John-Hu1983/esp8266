@@ -45,7 +45,9 @@ typedef enum
 } Slip_Dir_t;
 
 void init_main_menu(void);
-void draw_main_menu(void);
 void process_main_menu_task(osvar_t ms);
+void draw_menu_choice(void);
+void leapout_next_menu(void);
+void leapout_prev_menu(void);
 
 #endif

@@ -120,30 +120,6 @@ void resetWiFiCredentials()
 }
 
 /*
- * @brief Blink status LED
- *
- * This function blinks the status LED (NodeMCU built-in LED) a specified
- * number of times with a given interval.
- *
- * @param times The number of times the LED should blink.
- * @param interval The interval (in milliseconds) between each blink.
- */
-void blinkStatusLED(int times, int interval)
-{
-  if (STATUS_LED_PIN < 0)
-    return;
-  pinMode(STATUS_LED_PIN, OUTPUT);
-
-  for (int i = 0; i < times; i++)
-  {
-    digitalWrite(STATUS_LED_PIN, LOW); // LED on (NodeMCU built-in LED is inverted)
-    delay(interval);
-    digitalWrite(STATUS_LED_PIN, HIGH); // LED off
-    delay(interval);
-  }
-}
-
-/*
  * @brief Get encryption type as string
  *
  * This function returns a string representation of the encryption type
@@ -631,9 +607,6 @@ void startWiFiConfigPortal()
 {
   Serial.println("Starting WiFi configuration portal...");
 
-  // Blink LED to indicate configuration mode
-  blinkStatusLED(3, 200);
-
   // Set up Access Point
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(AP_IP, AP_GATEWAY, AP_SUBNET);
@@ -655,9 +628,6 @@ void startWiFiConfigPortal()
     Serial.println("Password: " + String(AP_PASSWORD));
     Serial.println("Then open browser and go to: http://192.168.4.1");
 
-    // Blink LED to indicate portal is ready
-    blinkStatusLED(5, 100);
-
     // Initial network scan
     scanAvailableNetworks();
 
@@ -668,16 +638,6 @@ void startWiFiConfigPortal()
       dnsServer.processNextRequest();
       wifiServer.handleClient();
       yield();
-
-      // Blink LED slowly to indicate active portal
-      if (millis() % 2000 < 100)
-      {
-        digitalWrite(STATUS_LED_PIN, LOW);
-      }
-      else
-      {
-        digitalWrite(STATUS_LED_PIN, HIGH);
-      }
     }
 
     Serial.println("Configuration portal timeout");
@@ -685,9 +645,6 @@ void startWiFiConfigPortal()
     // Stop servers
     stopWebServer();
     stopDNSServer();
-
-    // Blink LED to indicate timeout
-    blinkStatusLED(10, 50);
   }
   else
   {

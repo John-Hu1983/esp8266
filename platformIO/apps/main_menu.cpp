@@ -1,20 +1,7 @@
 #include "../inc/includes.h"
-const u8 *const MainMenu_Icon[] PROGMEM = {
-    png_camera,
-    png_configuration,
-    png_decimal,
-    png_image,
-    png_message,
-    png_music,
-    png_text,
-    png_timer,
-    png_topic,
-    png_weather,
-    png_webside,
-};
-u8 MainMenu_Icon_Index = 0;
 
 const menu_iocon_t MAINMENU_GROUP[] PROGMEM = {
+    {(u8 *)png_webside, (u8 *)"WEBSIDE"},
     {(u8 *)png_camera, (u8 *)"CAMERA"},
     {(u8 *)png_configuration, (u8 *)"CONFIG"},
     {(u8 *)png_decimal, (u8 *)"DECIMAL"},
@@ -25,13 +12,10 @@ const menu_iocon_t MAINMENU_GROUP[] PROGMEM = {
     {(u8 *)png_timer, (u8 *)"TIMER"},
     {(u8 *)png_topic, (u8 *)"TOPIC"},
     {(u8 *)png_weather, (u8 *)"WEATHER"},
-    {(u8 *)png_webside, (u8 *)"WEBSIDE"}};
+};
 
 const btn_io KEY_HW = {GPIO_ENCODER_SW, false, 20, 50};
 btn_obj_t EnterKey = {(btn_io *)&KEY_HW, 0, 0};
-
-const u8 *Btn_Text[8] = {(u8 *)"WIFI", (u8 *)"DBUG", (u8 *)"SCAN", (u8 *)"TEST", (u8 *)"SPIN", (u8 *)"MENU", (u8 *)"DEMO", (u8 *)"SETT"};
-Button MainBtn[8];
 
 MainMenu_Ctr menu_dev;
 
@@ -44,162 +28,111 @@ void init_main_menu(void)
 {
   pinMode(GPIO_ENCODER_SW, INPUT_PULLUP);
   memset((void *)&menu_dev, 0, sizeof(MainMenu_Ctr));
-  draw_main_menu();
+  draw_menu_choice();
+}
+
+/**
+ * @brief: appear main menu
+ * @param: void
+ * @return: void
+ */
+void draw_menu_choice(void)
+{
+  const u8 *icon_ptr = (const u8 *)pgm_read_ptr(&MAINMENU_GROUP[menu_dev.cursor].png);
+  const u8 *icon_name = (const u8 *)pgm_read_ptr(&MAINMENU_GROUP[menu_dev.cursor].title);
+  OLED_Clear(0x0);
+  Gui_Show_Str_At_Center(0, 0, WIDTH - 1, 16, (u8 *)icon_name, FONT_8X16, 1);
+  gui_draw_btn_pic((WIDTH - 48) / 2, HEIGHT - 48, icon_ptr);
   OLED_update();
 }
 
 /**
- * @brief Triggle main menu slip
- * @param dir Slip direction
- * @retvalue None
+ * @brief: leap out next menu
+ * @param: void
+ * @return: void
  */
-void _triggle_menu_slip(Slip_Dir_t dir)
+void leapout_next_menu(void)
 {
-  menu_dev.state.bits.update = 1;
-  menu_dev.state.bits.dir = dir;
-  menu_dev.step = 0;
-  menu_dev.period = 0;
-  switch (dir)
+  menu_dev.cursor++;
+  if (menu_dev.cursor >= sizeof(MAINMENU_GROUP) / sizeof(menu_iocon_t))
   {
-  case Slip_Dir_Left:
-    menu_dev.x = WIDTH - 1;
-    menu_dev.y = HEIGHT - 48;
-    break;
-
-  case Slip_Dir_Right:
-    menu_dev.x = 0;
-    menu_dev.y = HEIGHT - 48;
-    break;
-
-  case Slip_Dir_Up:
-    menu_dev.x = 0;
-    menu_dev.y = HEIGHT - 1;
-    break;
-
-  case Slip_Dir_Down:
-    menu_dev.x = 0;
-    menu_dev.y = 0;
-    break;
-
-  default:
-    break;
+    menu_dev.cursor = 0;
   }
 }
 
 /**
- * @brief Process main menu task
- * @param ms Time interval in milliseconds
- * @retvalue None
+ * @brief: leap out previous menu
+ * @param: void
+ * @return: void
  */
-void _handle_menu_slip(osvar_t ms)
+void leapout_prev_menu(void)
 {
-  if (menu_dev.state.bits.update == 0)
-    return;
+  menu_dev.cursor = (menu_dev.cursor > 0)
+                        ? menu_dev.cursor - 1
+                        : sizeof(MAINMENU_GROUP) / sizeof(menu_iocon_t) - 1;
 }
 
 /**
- * @brief Initialize main menu
- * @param None
- * @retvalue None
+ * @brief Choose kid menu
+ * @param void
+ * @retvalue void
  */
-void draw_main_menu(void)
+void _choose_kid_menu(encoder_t *encoder)
 {
-  u8 row, col;
-  OLED_Clear(0x0);
-  for (row = 0; row < 2; row++)
-  {
-    for (col = 0; col < 4; col++)
-    {
-      MainBtn[row * 4 + col].x = Btn_Group_Xs + Btn_Width * col + Btn_Interval_X * col;
-      MainBtn[row * 4 + col].y = Btn_Group_Ys + Btn_Height * row + Btn_Interval_Y * row;
-      MainBtn[row * 4 + col].width = Btn_Width;
-      MainBtn[row * 4 + col].height = Btn_Height;
-      MainBtn[row * 4 + col].text = (u8 *)Btn_Text[row * 4 + col];
-      MainBtn[row * 4 + col].textSize = 8;
-      MainBtn[row * 4 + col].state = BUTTON_STATE_NORMAL;
-      MainBtn[row * 4 + col].visible = true;
-      GUI_DrawButton(&MainBtn[row * 4 + col]);
-    }
-  }
-}
-
-/**
- * @brief Process main menu task
- * @param ms Time interval in milliseconds
- * @retvalue None
- */
-void process_main_menu_task(osvar_t ms)
-{
-  encoder_t *encoder;
-  Button *btn;
-  btnval_t btn_val;
-
-  btn_val = scan_button_condition(&EnterKey, ms);
-  if (btn_val == BTN_CLICK)
-  {
-    Serial.println("Encoder click!");
-    // scanAvailableNetworks();
-  }
-  else if (btn_val == BTN_HOLD)
-  {
-    Serial.println("Encoder hold!");
-  }
-
-  encoder = read_encoder_feature();
   if (encoder->state.bits.update)
   {
     encoder->state.bits.update = 0;
 
     if (encoder->state.bits.dir == ENC_TURN_CW)
     {
-      // Serial.println("Encoder turn CW!");
-      // menu_dev.cursor++;
-      // if (menu_dev.cursor > 8)
-      // {
-      //   menu_dev.cursor = 1;
-      // }
-
-      OLED_Clear(0x0);
-      const u8 *icon_ptr = (const u8 *)pgm_read_ptr(&MAINMENU_GROUP[MainMenu_Icon_Index].png);
-      const u8 *icon_name = (const u8 *)pgm_read_ptr(&MAINMENU_GROUP[MainMenu_Icon_Index].title);
-      GUI_ShowString(30, 0, (u8 *)icon_name, 16, 1);
-      gui_draw_btn_pic((WIDTH - 48) / 2, HEIGHT - 48, icon_ptr);
-      OLED_update();
-      MainMenu_Icon_Index++;
-      if (MainMenu_Icon_Index >= sizeof(MainMenu_Icon) / sizeof(MainMenu_Icon[0]))
-      {
-        MainMenu_Icon_Index = 0;
-      }
+      leapout_next_menu();
+      draw_menu_choice();
     }
     else if (encoder->state.bits.dir == ENC_TURN_CCW)
     {
-      // Serial.println("Encoder turn CCW!");
-      // menu_dev.cursor--;
-      // if (menu_dev.cursor <= 0)
-      // {
-      //   menu_dev.cursor = 8;
-      // }
-
-      OLED_Clear(0x0);
-      const u8 *icon_ptr = (const u8 *)pgm_read_ptr(&MAINMENU_GROUP[MainMenu_Icon_Index].png);
-      const u8 *icon_name = (const u8 *)pgm_read_ptr(&MAINMENU_GROUP[MainMenu_Icon_Index].title);
-      GUI_ShowString(30, 0, (u8 *)icon_name, 16, 1);
-      gui_draw_btn_pic((WIDTH - 48) / 2, HEIGHT - 48, icon_ptr);
-      OLED_update();
-      if (MainMenu_Icon_Index > 0)
-      {
-        MainMenu_Icon_Index--;
-      }
-      else
-      {
-        MainMenu_Icon_Index = sizeof(MainMenu_Icon) / sizeof(MainMenu_Icon[0]) - 1;
-      }
+      leapout_prev_menu();
+      draw_menu_choice();
     }
+  }
+}
 
-    // btn = &MainBtn[menu_dev.cursor - 1];
-    // draw_main_menu();
-    // GUI_CheckButtonPress(btn, btn->x + btn->width / 2, btn->y + btn->height / 2);
-    // GUI_DrawButton(btn);
-    // OLED_update();
+/**
+ * @brief Process main menu task
+ * @param ms Time interval in milliseconds
+ * @retvalue None
+ */
+typedef enum
+{
+  MENU_STEP_IDLE = 0,
+  MENU_STEP_WIFI = 1,
+} Main_Menu_Step_t;
+void process_main_menu_task(osvar_t ms)
+{
+  static u16 menu_step = MENU_STEP_IDLE;
+  btnval_t btn_val = scan_button_condition(&EnterKey, ms);
+  encoder_t *encoder = read_encoder_feature();
+  int ret;
+
+  switch (menu_step)
+  {
+  case MENU_STEP_IDLE:
+    _choose_kid_menu(encoder);
+    if (btn_val == BTN_CLICK)
+    {
+      menu_step = menu_dev.cursor + 1;
+    }
+    break;
+
+  case MENU_STEP_WIFI:
+    ret = app_wifi_loop(ms, btn_val, encoder);
+    if (ret < 0)
+    {
+      menu_step = MENU_STEP_IDLE;
+      draw_menu_choice();
+    }
+    break;
+
+  default:
+    break;
   }
 }

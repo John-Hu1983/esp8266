@@ -23,7 +23,7 @@ typedef struct{
 //=========================log show==========================================//
 #define LOG_SHOW_I2C                    enable
 
-
+#define Arduino_Platform                TRUE
 
 #endif
 

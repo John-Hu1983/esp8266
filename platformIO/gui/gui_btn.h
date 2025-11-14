@@ -41,5 +41,8 @@ void GUI_ResetButtonState(Button *btn);
 void TEST_ButtonDemo(void);
 void TEST_ImageButtonDemo(void); // New demo for image buttons
 void gui_draw_btn_pic(u8 x, u8 y, const u8 *bmp);
-
+Button *createDynamicButton(u8 x, u8 y, u8 width, u8 height,
+                            u8 *text, u8 textSize, u8 *imageData, ButtonType type,
+                            ButtonState state, bool visible);
+void freeButton(Button **btnPtr);
 #endif

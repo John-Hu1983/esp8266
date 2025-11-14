@@ -86,11 +86,13 @@ void GUI_DrawButton(Button *btn)
           u8 rowData;
           if (textHeight == 16)
           {
-            rowData = F8X16[(currentChar - ' ') * 16 + i];
+            // rowData = F8X16[(currentChar - ' ') * 16 + i];
+            rowData = pgm_read_byte(&Font8X16[(currentChar - ' ') * 16 + i]);
           }
           else
           {
-            rowData = F6x8[currentChar - ' '][i];
+            // rowData = F6x8[currentChar - ' '][i];
+            rowData = pgm_read_byte(&Font6x8[currentChar - ' '][i]);
           }
 
           for (u8 j = 0; j < 8; j++)
@@ -210,6 +212,63 @@ void GUI_ResetButtonState(Button *btn)
   if (btn && btn->state == BUTTON_STATE_PRESSED)
   {
     btn->state = BUTTON_STATE_NORMAL;
+  }
+}
+
+/**
+ * @name       :Button *createDynamicButton(u8 x, u8 y, u8 width, u8 height,
+ *                            u8 *text, u8 textSize, u8 *imageData, ButtonType type,
+ *                            ButtonState state, bool visible)
+ * @function   :Create a dynamic button
+ * @parameters :x:Button x coordinate
+ *              y:Button y coordinate
+ *              width:Button width
+ *              height:Button height
+ *              text:Button text
+ *              textSize:Button text size
+ *              imageData:Button image data
+ *              type:Button type
+ *              state:Button state
+ *              visible:Button visibility
+ * @retvalue   :Button pointer
+ */
+Button *createDynamicButton(u8 x, u8 y, u8 width, u8 height,
+                            u8 *text, u8 textSize, u8 *imageData, ButtonType type,
+                            ButtonState state, bool visible)
+{
+  Button *btn = (Button *)malloc(sizeof(Button));
+  if (btn == NULL)
+  {
+    Serial.println("Failed to allocate memory for button!");
+    return NULL;
+  }
+
+  btn->x = x;
+  btn->y = y;
+  btn->width = width;
+  btn->height = height;
+  btn->text = text;
+  btn->textSize = textSize;
+  btn->imageData = imageData;
+  btn->type = type;
+  btn->state = state;
+  btn->visible = visible;
+
+  return btn;
+}
+
+/**
+ * @name       :void freeButton(Button **btnPtr)
+ * @function   :Free memory of a button
+ * @parameters :btnPtr:Button pointer pointer
+ * @retvalue   :None
+ */
+void freeButton(Button **btnPtr)
+{
+  if (btnPtr && *btnPtr)
+  {
+    free(*btnPtr);
+    *btnPtr = NULL; // Avoid dangling pointer
   }
 }
 
@@ -393,5 +452,3 @@ void gui_draw_btn_pic(uint8_t x, uint8_t y, const uint8_t *bmp)
     }
   }
 }
-
-

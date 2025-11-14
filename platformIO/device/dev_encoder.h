@@ -25,8 +25,10 @@ typedef struct
     } bits;
   } state;
 
+  u8 restricted;
 } encoder_t;
 
 void init_encode_object(void);
+void cb_encoder_restricted_zoon(void);
 encoder_t *read_encoder_feature(void);
 #endif

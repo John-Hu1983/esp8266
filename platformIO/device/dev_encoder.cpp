@@ -8,8 +8,12 @@ encoder_t encoder_dev;
  */
 void IRAM_ATTR encoder_clk_ISR()
 {
-  encoder_dev.state.bits.update = 1;
-  encoder_dev.state.bits.dir = (digitalRead(GPIO_ENCODER_DT) == LOW) ? ENC_TURN_CW : ENC_TURN_CCW;
+  if (encoder_dev.restricted == 0)
+  {
+    encoder_dev.state.bits.update = 1;
+    encoder_dev.state.bits.dir = (digitalRead(GPIO_ENCODER_DT) == LOW) ? ENC_TURN_CW : ENC_TURN_CCW;
+    encoder_dev.restricted = 100;
+  }
 }
 
 /**
@@ -18,8 +22,12 @@ void IRAM_ATTR encoder_clk_ISR()
  */
 void IRAM_ATTR encoder_dt_ISR()
 {
-  encoder_dev.state.bits.update = 1;
-  encoder_dev.state.bits.dir = (digitalRead(GPIO_ENCODER_CLK) == LOW) ? ENC_TURN_CW : ENC_TURN_CCW;
+  if (encoder_dev.restricted == 0)
+  {
+    encoder_dev.state.bits.update = 1;
+    encoder_dev.state.bits.dir = (digitalRead(GPIO_ENCODER_CLK) == LOW) ? ENC_TURN_CW : ENC_TURN_CCW;
+    encoder_dev.restricted = 100;
+  }
 }
 
 /**
@@ -33,6 +41,18 @@ void init_encode_object(void)
   attachInterrupt(digitalPinToInterrupt(GPIO_ENCODER_CLK), encoder_clk_ISR, FALLING);
   attachInterrupt(digitalPinToInterrupt(GPIO_ENCODER_DT), encoder_dt_ISR, RISING);
   memset((void *)&encoder_dev, 0, sizeof(encoder_dev));
+}
+
+/**
+ * @brief Callback function for encoder restricted zoom
+ * @retvalue None
+ */
+void cb_encoder_restricted_zoon(void)
+{
+  if (encoder_dev.restricted)
+  {
+    encoder_dev.restricted--;
+  }
 }
 
 /**
