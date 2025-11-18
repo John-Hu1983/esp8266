@@ -5,7 +5,7 @@
 #define WIRE_MAX min(256, I2C_BUFFER_LENGTH)
 
 #define PAGE_SIZE 8
-#define SH1106_COLUMN_L 0x02
+#define SH1106_COLUMN_L 0x03
 #define SH1106_COLUMN_H 0x10
 #define SH1106_PAGE_ADDR 0xB0
 #define Brightness 0xFF

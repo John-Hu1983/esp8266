@@ -40,6 +40,7 @@
 #include "../gui/gui.h"
 #include "../gui/gui_test.h"
 #include "../gui/gui_btn.h"
+#include "../gui/gui_textedit.h"
 
 #include "../kernel/os_core.h"
 

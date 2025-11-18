@@ -16,7 +16,6 @@ const menu_iocon_t MAINMENU_GROUP[] PROGMEM = {
 
 const btn_io KEY_HW = {GPIO_ENCODER_SW, false, 20, 50};
 btn_obj_t EnterKey = {(btn_io *)&KEY_HW, 0, 0};
-
 MainMenu_Ctr menu_dev;
 
 /*

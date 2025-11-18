@@ -1,15 +1,9 @@
 #include "../inc/includes.h"
 
-enum
-{
-  _INIT_ = 0,
-  _SELECT_,
-};
-
 static u8 step = 0;
 static u8 choice = 0;
 static Button *btnArray[3];
-
+static event_op_t op = {0};
 /*
  * @brief Create dynamically created buttons
  *
@@ -66,43 +60,241 @@ void _release_dynamic_buttons(void)
     freeButton(&btnArray[2]);
 }
 
-void _show_available_networks(void)
+/*
+ * @brief Process the WiFi application loop
+ *
+ * This function processes the WiFi application loop, handling button presses and encoder input.
+ *
+ * @param ms Current time in milliseconds
+ * @param btn Button value (BTN_CLICK, BTN_HOLD, etc.)
+ * @param encoder Pointer to encoder_t struct
+ * @return Wifi_Step_t The next step in the WiFi application
+ */
+Wifi_Step_t _process_wifi_app_loop(osvar_t ms, btnval_t btn, encoder_t *encoder)
 {
-  WiFi.mode(WIFI_STA);
-  WiFi.disconnect();
-  delay(100);
-  int n = WiFi.scanNetworks();
-  if (n == 0)
+  Wifi_Step_t next_step = WIFI_STEP_LOOP;
+
+  if (btn == BTN_HOLD)
   {
-    // OLED_Clear(0);
-    // GUI_ShowString(0, 0, (u8 *)"No networks found", 16, 1);
-    // OLED_update();
-    return;
+    next_step = WIFI_STEP_QUIT;
+  }
+  else if (btn == BTN_CLICK)
+  {
+    memset(&op, 0, sizeof(event_op_t));
+    switch (choice)
+    {
+    case WIFI_AET_SCAN:
+      next_step = WIFI_STEP_NETWORKS;
+      break;
+    case WIFI_AET_AP_ROLE:
+      next_step = WIFI_STEP_AP_ROLE;
+      break;
+    case WIFI_AET_PROPERTY:
+      next_step = WIFI_STEP_PROPERTY;
+      break;
+    default:
+      break;
+    }
   }
 
-  // OLED_Clear(0);
+  if (encoder->state.bits.update)
+  {
+    encoder->state.bits.update = 0;
+    if (encoder->state.bits.dir == ENC_TURN_CW)
+    {
+      choice = (choice < WIFI_AET_PROPERTY) ? choice + 1 : WIFI_AET_SCAN;
+    }
+    else if (encoder->state.bits.dir == ENC_TURN_CCW)
+    {
+      choice = (choice > WIFI_AET_SCAN) ? choice - 1 : WIFI_AET_PROPERTY;
+    }
+    _draw_dynamic_buttons(choice - 1);
+  }
+  return next_step;
+}
+
+/**
+ * @brief Show available networks
+ * @param ms Current time in milliseconds
+ * @param btn Button value (BTN_CLICK, BTN_HOLD, etc.)
+ * @param encoder Pointer to encoder_t struct (unused in this example)
+ * @return int -1 if no networks are available, 0 otherwise
+ */
+int _show_available_networks(osvar_t ms, btnval_t btn, encoder_t *encoder)
+{
+#define WIFI_LIST_MAX 4
+  int res = -1;
+  static u8 wifi_list_index = 0;
+  static u8 *networks = NULL;
+  static u8 **ssid_list = NULL;
+  static TextEditWidget *textedit[WIFI_LIST_MAX] = {NULL};
+
+  op.debounce = (op.debounce < ms) ? 0 : (op.debounce - ms);
+  switch (op.step)
+  {
+  case 0:
+    OLED_Clear(0);
+    GUI_ShowString(0, 0, (u8 *)"SCANNING WIFI", FONT_8X16, 1);
+    GUI_ShowString(0, 20, (u8 *)"PLEASE WAIT ...", FONT_8X16, 1);
+    OLED_update();
+    op.step++;
+    break;
+
+  case 1:
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect();
+    op.debounce = 100;
+    if (networks == NULL)
+    {
+      networks = (u8 *)malloc(sizeof(u8));
+    }
+
+    if (networks)
+    {
+      op.step++;
+    }
+    break;
+
+  case 2:
+    if (op.debounce == 0)
+    {
+      *networks = WiFi.scanNetworks();
+      GUI_ShowString(0, 40, (u8 *)"WIFI: ", FONT_8X16, 1);
+      GUI_ShowNum(48, 40, *networks, 3, FONT_8X16, 1);
+      OLED_update();
+      op.debounce = 2000;
+      op.step++;
+    }
+    break;
+
+  case 3:
+    if (op.debounce == 0)
+    {
+      ssid_list = (u8 **)malloc(*networks * sizeof(u8 *));
+      for (int i = 0; i < *networks; i++)
+      {
+        ssid_list[i] = (u8 *)malloc(WiFi.SSID(i).length() + 1);
+        strcpy((char *)ssid_list[i], (char *)WiFi.SSID(i).c_str());
+      }
+
+      wifi_list_index = 0;
+      u8 height_per_item = HEIGHT / WIFI_LIST_MAX;
+      for (int i = 0; i < WIFI_LIST_MAX; i++)
+      {
+        if (textedit[i] == NULL)
+        {
+          textedit[i] = createTextEdit(0, height_per_item * i, WIDTH - 1, height_per_item, 21);
+        }
+      }
+
+      OLED_Clear(0);
+      for (int i = 0; i < WIFI_LIST_MAX; i++)
+      {
+        u8 inx = wifi_list_index + i;
+        if (inx >= *networks)
+        {
+          break;
+        }
+        strcpy((char *)textedit[i]->buffer, (const char *)ssid_list[inx]);
+        drawTextEdit(textedit[i]);
+      }
+      OLED_update();
+
+      op.debounce = 200;
+      op.step++;
+    }
+    break;
+
+  case 4:
+    if (btn == BTN_HOLD)
+    {
+      op.step = 0xff;
+    }
+
+    if (encoder->state.bits.update)
+    {
+      encoder->state.bits.update = 0;
+      if (encoder->state.bits.dir == ENC_TURN_CW)
+      {
+        wifi_list_index = (wifi_list_index < *networks - WIFI_LIST_MAX) ? wifi_list_index + 1 : 0;
+      }
+      else if (encoder->state.bits.dir == ENC_TURN_CCW)
+      {
+        wifi_list_index = (wifi_list_index > 0) ? wifi_list_index - 1 : *networks - WIFI_LIST_MAX;
+      }
+
+      OLED_Clear(0);
+      for (int i = 0; i < WIFI_LIST_MAX; i++)
+      {
+        u8 inx = wifi_list_index + i;
+        if (inx >= *networks)
+        {
+          break;
+        }
+        strcpy((char *)textedit[i]->buffer, (const char *)ssid_list[inx]);
+        drawTextEdit(textedit[i]);
+      }
+      OLED_update();
+    }
+
+    break;
+
+  default:
+    if (op.debounce == 0)
+    {
+      u8 network_count = *networks;
+      for (int i = 0; i < network_count; i++)
+      {
+        if (ssid_list[i] != NULL)
+        {
+          free(ssid_list[i]);
+          ssid_list[i] = NULL;
+        }
+      }
+
+      for (int i = 0; i < WIFI_LIST_MAX; i++)
+      {
+        if (textedit[i] != NULL)
+        {
+          freeTextEdit(textedit[i]);
+          textedit[i] = NULL;
+        }
+      }
+
+      free(ssid_list);
+      ssid_list = NULL;
+
+      free(networks);
+      networks = NULL;
+      res = 0;
+    }
+    break;
+  }
+
+  // int n = WiFi.scanNetworks();
+  // if (n == 0)
+  // {
+  //   return;
+  // }
+
   // for (int i = 0; i < n; i++)
   // {
-  //   String ssid = WiFi.SSID(i);
-  //   int32_t rssi = WiFi.RSSI(i);
-  //   uint8_t encryption = WiFi.encryptionType(i);
-  //   uint8_t channel = WiFi.channel(i);
-  //   String encryptionType = getEncryptionType(encryption);
-  //   String signalBars = getSignalBars(rssi);
-  //   String info = ssid + " " + signalBars + " " + encryptionType + " " + String(channel);
-  //   GUI_ShowString(0, i * 8, (u8 *)info.c_str(), 8, 1);
+  //   Serial.print(i + 1);
+  //   Serial.print(": ");
+  //   Serial.print(WiFi.SSID(i));
+  //   Serial.print(" (RSSI: ");
+  //   Serial.print(WiFi.RSSI(i));
+  //   Serial.println(" dBm)");
   // }
+
+  // TextEditWidget *myTextEdit = NULL;
+  // myTextEdit = createTextEdit(0, 0, WIDTH - 1, 10, 8);
+  // strcpy((char *)myTextEdit->buffer, "Hello World!");
+  // OLED_Clear(0);
+  // drawTextEdit(myTextEdit);
   // OLED_update();
 
-  for (int i = 0; i < n; i++)
-  {
-    Serial.print(i + 1);
-    Serial.print(": ");
-    Serial.print(WiFi.SSID(i));
-    Serial.print(" (RSSI: ");
-    Serial.print(WiFi.RSSI(i));
-    Serial.println(" dBm)");
-  }
+  return res;
 }
 
 /**
@@ -118,11 +310,11 @@ int app_wifi_loop(osvar_t ms, btnval_t btn, encoder_t *encoder)
 
   switch (step)
   {
-  case _INIT_:
+  case WIFI_STEP_INIT:
     if (_create_dynamic_buttons())
     {
       _draw_dynamic_buttons(0xff);
-      step++;
+      step = WIFI_STEP_LOOP;
     }
     else
     {
@@ -130,37 +322,28 @@ int app_wifi_loop(osvar_t ms, btnval_t btn, encoder_t *encoder)
     }
     break;
 
-  case _SELECT_:
-    if (btn == BTN_HOLD)
-    {
-      step = 0xff;
-    }
+  case WIFI_STEP_LOOP:
+    step = _process_wifi_app_loop(ms, btn, encoder);
+    break;
 
-    if (btn == BTN_CLICK)
+  case WIFI_STEP_NETWORKS:
+    if (_show_available_networks(ms, btn, encoder) == 0)
     {
-      // show_heap_info();
-      // if (choice == 0)
-      {
-        _show_available_networks();
-      }
-    }
-
-    if (encoder->state.bits.update)
-    {
-      encoder->state.bits.update = 0;
-      if (encoder->state.bits.dir == ENC_TURN_CW)
-      {
-        choice = (choice < 3) ? choice + 1 : 1;
-      }
-      else if (encoder->state.bits.dir == ENC_TURN_CCW)
-      {
-        choice = (choice > 1) ? choice - 1 : 3;
-      }
-      _draw_dynamic_buttons(choice - 1);
+      choice = 0;
+      _draw_dynamic_buttons(0xff);
+      show_heap_info();
+      step = WIFI_STEP_LOOP;
     }
     break;
 
+  case WIFI_STEP_AP_ROLE:
+    break;
+
+  case WIFI_STEP_PROPERTY:
+    break;
+
   default:
+  case WIFI_STEP_QUIT:
     _release_dynamic_buttons();
     step = 0;
     choice = 0;

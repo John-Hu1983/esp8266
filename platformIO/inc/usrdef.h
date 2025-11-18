@@ -17,7 +17,7 @@ typedef unsigned long   osvar_t;
 typedef struct{
   u8  step;
   u16 debounce;
-}scan_t;
+}event_op_t;
 
 
 //=========================log show==========================================//
